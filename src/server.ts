@@ -46,9 +46,22 @@ export class Server {
   }
 
   enableCors() {
+    // this.app.use(
+    //   cors({
+    //     origin: true,
+    //     credentials: true,
+    //   })
+    // );
+
     this.app.use(
       cors({
-        origin: true,
+        origin: function (origin, callback) {
+          if (!origin || ["https://blackdiary.vercel.app", "http://localhost:3000"].includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
         credentials: true,
       })
     );
