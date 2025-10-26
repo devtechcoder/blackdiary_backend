@@ -8,8 +8,8 @@ import Routes from "./routes/Routes";
 import { NextFunction } from "express";
 import path = require("path");
 import { ReqInterface, ResInterface } from "./interfaces/RequestInterface";
-const app = express();
-const cookieParser = require("cookie-parser");
+// const app = express();
+// const cookieParser = require("cookie-parser");
 // let’s you use the cookieParser in your application
 
 export class Server {
