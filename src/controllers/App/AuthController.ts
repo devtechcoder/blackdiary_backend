@@ -87,7 +87,7 @@ export class AuthController {
       }
 
       if (!matchedUsers.length) {
-        return _RS.badRequest(res, "BADREQUEST", "Invalid password", {}, startTime);
+        return _RS.api(res, false, "Invalid password", {}, startTime);
       }
 
       // ✅ If multiple matched accounts → return account list for modal
