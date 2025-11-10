@@ -46,25 +46,18 @@ export class Server {
   }
 
   enableCors() {
-    // this.app.use(
-    //   cors({
-    //     origin: true,
-    //     credentials: true,
-    //   })
-    // );
-
-    this.app.use(
-      cors({
-        origin: function (origin, callback) {
-          if (!origin || ["https://blackdiary.vercel.app", "https://adminblackdiary.vercel.app", "http://localhost:3000"].includes(origin)) {
-            callback(null, true);
-          } else {
-            callback(new Error("Not allowed by CORS"));
-          }
-        },
-        credentials: true,
-      })
-    );
+    const corsOptions = {
+      origin: function (origin, callback) {
+        if (!origin || ["https://blackdiary.vercel.app", "https://adminblackdiary.vercel.app", "http://localhost:3000"].includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
+    };
+    this.app.options("*", cors(corsOptions)); // enable pre-flight
+    this.app.use(cors(corsOptions));
   }
 
   configBodyParser() {
