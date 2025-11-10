@@ -81,4 +81,52 @@ export class CommonController {
       console.log(error);
     }
   }
+
+  static async searchAccount(req, res, next) {
+    try {
+      const startTime = new Date().getTime();
+      const { q } = req.query;
+      const filter: any = { is_delete: false };
+      let data = [];
+      if (q && q.trim() !== "") {
+        filter.$or = [{ name: { $regex: q, $options: "i" } }, { user_name: { $regex: q, $options: "i" } }, { email: { $regex: q, $options: "i" } }, { phone: { $regex: q, $options: "i" } }];
+        filter.type = { $in: [UserTypes.CUSTOMER] };
+        data = await User.find(filter).sort({ name: 1 }).limit(50);
+      } else {
+        const searchQuery: any = { is_delete: false };
+        if (q) {
+          searchQuery.$or = [{ name: { $regex: q, $options: "i" } }, { hi_name: { $regex: q, $options: "i" } }];
+        }
+        const [occasions, subCategories] = await Promise.all([
+          Occasion.aggregate([{ $match: searchQuery }, { $sort: { name: 1 } }, { $addFields: { type: "occasion" } }]),
+          SubCategory.aggregate([{ $match: searchQuery }, { $sort: { name: 1 } }, { $addFields: { type: "sub_category" } }]),
+        ]);
+        data = [...occasions, ...subCategories].sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      return _RS.api(res, true, "search List", data, startTime);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+
+  static async getUserProfile(req, res, next) {
+    try {
+      const startTime = new Date().getTime();
+      const { q } = req.query;
+      const filter: any = { is_delete: false };
+      let data = {};
+      if (q && q.trim() !== "") {
+        filter.type = { $in: [UserTypes.CUSTOMER] };
+        filter.user_name = q;
+        data = await User.findOne(filter);
+      }
+
+      return _RS.api(res, true, "search List", data, startTime);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
 }

@@ -4,9 +4,9 @@ import { CATEGORY_TYPE } from "../constants/constants";
 const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 const Schema = mongoose.Schema;
 
-const Diary = new Schema(
+const Post = new Schema(
   {
-    content: { type: String, default: null },
+    post: { type: String, default: null },
     category: { type: String, enum: Object.values(CATEGORY_TYPE), default: null },
     sub_category_id: [{ type: Schema.Types.ObjectId, ref: "SubCategory", default: null }],
     occasion_ids: [{ type: Schema.Types.ObjectId, ref: "Occasion", default: null }],
@@ -29,5 +29,5 @@ const Diary = new Schema(
 );
 
 mongoose.plugin(aggregatePaginate);
-Diary.index({ category: "text" });
-export default model<any, AggregatePaginateModel<any>>("Diary", Diary);
+Post.index({ category: "text" });
+export default model<any, AggregatePaginateModel<any>>("Post", Post);

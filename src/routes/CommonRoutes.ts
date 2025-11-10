@@ -18,6 +18,8 @@ class CommonRoutes {
 
   public get() {
     this.router.get("/categories", CommonController.categories);
+    this.router.get("/search", CommonController.searchAccount);
+    this.router.get("/get-user-profile", CommonController.getUserProfile);
     this.router.get("/sub-categories/:id?", CommonController.subCategories);
     this.router.get("/occasion/:occasionId?", CommonController.occasion);
     this.router.get("/customer", CommonController.customers);

@@ -13,10 +13,10 @@ export const CATEGORY_TYPE = {
 };
 
 export const CATEGORY_DATA = [
-  { name: "Sher", value: "Sher", sort_number: 1 },
-  { name: "Shayri", value: "Shayri", sort_number: 2 },
-  { name: "Ghazal", value: "Ghazal", sort_number: 3 },
-  { name: "Nazm", value: "Nazm", sort_number: 4 },
-  { name: "Story", value: "Story", sort_number: 5 },
-  { name: "Meme", value: "Meme", sort_number: 6 },
+  { _id: "Sher", name: "Sher", value: "Sher", sort_number: 1 },
+  { _id: "Shayri", name: "Shayri", value: "Shayri", sort_number: 2 },
+  { _id: "Ghazal", name: "Ghazal", value: "Ghazal", sort_number: 3 },
+  { _id: "Nazm", name: "Nazm", value: "Nazm", sort_number: 4 },
+  { _id: "Story", name: "Story", value: "Story", sort_number: 5 },
+  { _id: "Meme", name: "Meme", value: "Meme", sort_number: 6 },
 ];
