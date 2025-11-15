@@ -1,8 +1,8 @@
 const firebaseAdmin = require("firebase-admin");
-// const serviceAccount = require("../../push-notify.json");
+const serviceAccount = require("../../push-notifiy.json");
 
-// firebaseAdmin.initializeApp({
-//     credential: firebaseAdmin.credential.cert(serviceAccount)
-// })
+firebaseAdmin.initializeApp({
+  credential: firebaseAdmin.credential.cert(serviceAccount),
+});
 
 export default firebaseAdmin;

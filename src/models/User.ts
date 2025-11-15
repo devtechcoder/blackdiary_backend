@@ -46,6 +46,8 @@ const User = new Schema(
     added_by: { type: String, default: null },
     type: { type: String, enum: Object.values(UserTypes), default: null },
     signup_type: { type: String, enum: Object.values(SignUpTypes), default: null },
+    social_type: { type: String, default: null },
+    social_id: { type: String, default: null },
     device_token: { type: String, default: null },
     device_type: { type: String, default: null },
     permission: { type: Array, default: [] },

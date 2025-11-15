@@ -18,6 +18,7 @@ class AuthRouter {
   public post() {
     this.router.post("/login-account", AuthController.getLoginAccount);
     this.router.post("/login", AuthController.login);
+    this.router.post("/google-login", AuthController.googleLogin);
     this.router.post("/send-otp", AuthController.sendOtp);
     this.router.post("/verify-otp", AuthController.verifyOtp);
     this.router.post(

@@ -19,6 +19,7 @@ import SubCategoryAppRouter from "./app/SubCategoryRouter";
 import BannerAppRouter from "./app/BannerRouter";
 import AuthAppRouter from "./app/AuthRouter";
 import LikeRouter from "./app/LikeRouter";
+import FollowRouter from "./app/followRouter";
 import CreateDiaryRouter from "./app/createDiaryRouter";
 import ShayariRouter from "./app/shayariRouter";
 import PostRouter from "./app/postRouter";
@@ -41,6 +42,7 @@ class Routes {
     this.router.use("/app/banner", BannerAppRouter);
     this.router.use("/app/auth", AuthAppRouter);
     this.router.use("/app/like", LikeRouter);
+    this.router.use("/app/follow", FollowRouter);
     this.router.use("/app/create-diary", CreateDiaryRouter);
     this.router.use("/app/shayari", ShayariRouter);
     this.router.use("/app/post", PostRouter);

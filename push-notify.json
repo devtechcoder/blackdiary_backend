@@ -1,13 +1,13 @@
 {
-  "type": "",
-  "project_id": "",
-  "private_key_id": "",
-  "private_key": "-",
-  "client_email": "",
-  "client_id": "",
-  "auth_uri": "",
-  "token_uri": "",
-  "auth_provider_x509_cert_url": "",
-  "client_x509_cert_url": "",
-  "universe_domain": ""
+  "type": "service_account",
+  "project_id": "black-diary-dev",
+  "private_key_id": "d124466ddb740edf08046409ecfcfc312287e67c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDUmWpJ3SCcV1z0\nyTeXTun46+APyt19KCZYf1rhDvrbu6ldGeC+mVZzf7VcbPaKUfVnXmbXvtWBjVNN\nzuBaXs1Z83LB6sWvRBLl24RXP5sj/pNHpgdoGZRhxhs5g+0S7MWB6ZDMQXmUpsnB\nuYRtbyLUvF/gs24kbRGJ/kpIiFQRHyrm42R4CXi51tJx45vVMcYbl5qog+Gre8XB\nBukLXdw8nvRvJplBCU9BS5Sjj3f8d4/yDTtZusMEE076054D81I5RGldtD0XoSEd\nfmuFLe7WxuoQODYP00wmu2yY1F+dtrC3wmcvpyf4zbCDyW2vUCQo7e9LSKrxETi7\nuKgPCTlfAgMBAAECggEAAgj4lChtDXy7Q7nsBvjBve4+wNKc+CZlkjyghBL+omfT\ndolZi2QwXalVSm3d655ejlTAVe8FCtkYI7XdPpWLEFdc5oT2y3ddWZyWUbd8JrC4\nfDEXVQ8Zn9ijnhNTNkvUlX/E27pXYu2NyjBFF5RpbZvirGX190dL/wQoyzTy3mRn\ngNvVwydNvEcJu8KI7kcAPJMsqHuftPQP2qOvdxqw1v/hnHReVF58WAKBXBtoesWM\np5/a85B0ademolHS++WgI4OCToOBeooWD/iSxyjNbV2HYsbHQ1RnxlSxc95Uv1uY\nMnEDS9i7j+U7YN1PmNseTm4MJWCYvV4wbmcj6B+AMQKBgQD9LHTnA6m2rKqP1z39\njvuJPdALpQDk3EgNVaJasVLUrc2csgKXLcKregMuOTutgEsERfU/7BZPEjel3GPN\nQUxyTS2CTCHD+Rn/vY5jaFp4bn6yzXdrpj7kcr+v0P5/6sXqSP9mwNkuf20z00Zv\nMqdrppWja+c6ZIbQXY8336HAQwKBgQDW+QBT+LMv2+NYli9EKn2T0t2ivcBkxPVc\n/whJvqNmoUuEN9gO1TAKaVnL6ZsZ2b9qRmkXJG5S58QR3tyl492K2XYxmfI8+kAm\nyt3FTA/j+bYXCL085tvGntgv5qpdyRvw26HrIliwlIevy7UimgVJslqChHwNiXDq\nte/ou3rutQKBgG5pBe59jXUKJjQm1XUP9yiqGWIKqrIkUxPlpbFRpeL0jTfp9fFC\nVqR7yIlPEnSe/5g0fjlLV4tSUYx26dtov9MVT2SEmTEjILCEVWWK6/GblouZyZvb\n24+7b1dYmLTmiTucbC2+qrh5gAFbAVubRqJO+vFTLHstvhF+y+e9EoiLAoGAJ5km\nXlFpcF9ouWCwxDWvfBNTkC6zydwd9ktkE3FyV+1OI8TFn7XVa5WMXOtjDpf1knX1\n1bV4PP1EOKZ8rnIS1QjJpMlevay7NGoZ/8XLB4tv5z5M3XMI+MU5vVkX+L6azvsm\nEFH7VEuH0vILI5yLbM/VrEULNNMkYZex4YTnWCECgYEA2kiWH/T8CZ9sgYD89BXm\nDJ7sygLVTQYWT/Eu1/l9RM9Ut78lOGZJi4Yhnfr7vHzyEIV3LDJk60MJCTVrvlz2\nuL+B9M+Qbb0VjxSitrlmxE4KPFsYr6ZCvL30LEacXtrw4k5pp77MJDn2Snjvhnp2\npAYZDFIOrLAMFP/4td8Pc2o=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@black-diary-dev.iam.gserviceaccount.com",
+  "client_id": "116360282543003903582",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40black-diary-dev.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
 }

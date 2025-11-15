@@ -3,6 +3,7 @@ import _RS from "../../helpers/ResponseHelper";
 import User from "../../models/User";
 import Like from "../../models/Likes";
 import Diary from "../../models/Diary";
+import Post from "../../models/Post";
 
 export class LikeController {
   static async list(req, res, next) {
@@ -59,14 +60,16 @@ export class LikeController {
     const startTime = new Date().getTime();
     const { diary_id } = req.body;
     const user_id = req.user?._id;
-
+    const type = req.query.type || "shayari";
     try {
-      const diary = await Diary.findById(diary_id);
+      let fieldName = type === "shayari" ? "diary_id" : "post_id";
+      let modalName: any = type === "shayari" ? Diary : Post;
+      const diary = await modalName.findById({ _id: diary_id });
       if (!diary) {
         return _RS.notFound(res, "NOTFOUND", "Diary not found!", null, startTime);
       }
 
-      const existingLike = await Like.findOne({ diary_id, liked_by: user_id });
+      const existingLike = await Like.findOne({ [fieldName]: diary_id, liked_by: user_id });
 
       if (existingLike) {
         // Unlike it
@@ -74,14 +77,14 @@ export class LikeController {
         diary.total_likes = Math.max(0, diary.total_likes - 1);
         await diary.save();
 
-        return _RS.api(res, true, "Diary unliked", { liked: false, diary }, startTime);
+        return _RS.api(res, true, "unliked", { liked: false }, startTime);
       } else {
         // Like it
-        await Like.create({ diary_id, liked_by: user_id });
+        await Like.create({ [fieldName]: diary_id, liked_by: user_id });
         diary.total_likes += 1;
         await diary.save();
 
-        return _RS.api(res, true, "Diary liked", { liked: true, diary }, startTime);
+        return _RS.api(res, true, "liked", { liked: true }, startTime);
       }
     } catch (err) {
       next(err);

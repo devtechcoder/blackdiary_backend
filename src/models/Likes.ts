@@ -7,6 +7,7 @@ const Like = new Schema(
   {
     liked_by: { type: Schema.Types.ObjectId, ref: "User", default: null },
     diary_id: { type: Schema.Types.ObjectId, ref: "Diary", default: null },
+    post_id: { type: Schema.Types.ObjectId, ref: "Post", default: null },
   },
   {
     timestamps: {

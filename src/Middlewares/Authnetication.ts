@@ -63,12 +63,10 @@ class Authentication {
     const startTime = new Date().getTime();
     try {
       let token;
-      console.log("req.headers.authorization", req.headers.authorization);
       if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
         token = req.headers.authorization?.split(" ")[1] ? req.headers.authorization.split(" ")[1] : undefined;
       }
 
-      console.log("token--,token", token);
       if (!token || token === "null" || token === "undefined") {
         req.user = {};
         req.user.id = null;

@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 
 const Post = new Schema(
   {
-    post: { type: String, default: null },
+    image: { type: String, default: null },
     category: { type: String, enum: Object.values(CATEGORY_TYPE), default: null },
     sub_category_id: [{ type: Schema.Types.ObjectId, ref: "SubCategory", default: null }],
     occasion_ids: [{ type: Schema.Types.ObjectId, ref: "Occasion", default: null }],

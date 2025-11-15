@@ -5,6 +5,7 @@ import Auth from "../../Utils/Auth";
 import Otp, { OtpUseFor } from "../../models/Otp";
 import { formattedEmail, formattedUserName } from "../../helpers/function";
 import { ADDED_BY_TYPES } from "../../constants/constants";
+import Follow from "../../models/Follow";
 
 export class AuthController {
   static async login(req, res, next) {
@@ -37,6 +38,63 @@ export class AuthController {
 
       const token = await Auth.getToken(payload, "1d", next);
       return _RS.ok(res, "SUCCESS", "Welcome! Login Successfully", { user: isUserExist, token }, startTime);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async googleLogin(req, res, next) {
+    const startTime = new Date().getTime();
+    const { name, email, social_type, social_id, device_token, device_type, image } = req.body;
+    try {
+      console.log(">>>>>>>>>>>>>>", req.body);
+
+      let msg = "Welcome! Login Successfully";
+      let isUserExist = await User.findOne({
+        email: formattedEmail(email),
+        is_delete: false,
+        type: UserTypes.CUSTOMER,
+      });
+
+      if (!isUserExist) {
+        // User does not exist, create a new one.
+        isUserExist = await new User({
+          name,
+          image,
+          user_name: formattedUserName(email.split("@")[0]),
+          email: formattedEmail(email),
+          type: UserTypes.CUSTOMER,
+          added_by: ADDED_BY_TYPES.SELF,
+          is_otp_verify: true,
+          social_type,
+          social_id,
+          device_token,
+          device_type,
+        }).save();
+        msg = "Congratulations! Signup successfully!";
+      } else {
+        // User exists, update social info if it's missing (first time social login)
+        isUserExist.social_id = isUserExist.social_id || social_id;
+        isUserExist.social_type = isUserExist.social_type || social_type;
+        isUserExist.image = isUserExist.image || image;
+      }
+
+      if (isUserExist && !isUserExist.is_active) {
+        return _RS.notFound(res, "NOTFOUND", "Your Account is blocked", isUserExist, startTime);
+      }
+
+      isUserExist.device_token = device_token ? device_token : isUserExist.device_token;
+      isUserExist.device_type = device_type ? device_type : isUserExist.device_type;
+
+      await isUserExist.save();
+      const payload = {
+        id: isUserExist._id,
+        email: isUserExist.email,
+        type: isUserExist.type,
+      };
+
+      const token = await Auth.getToken(payload, "1d", next);
+      return _RS.ok(res, "SUCCESS", msg, { user: isUserExist, token }, startTime);
     } catch (err) {
       next(err);
     }
@@ -270,7 +328,16 @@ export class AuthController {
       if (!getAdmin) {
         return _RS.notFound(res, "NOTFOUND", "User not exist, go to signup page", getAdmin, startTime);
       }
-      return _RS.ok(res, "SUCCESS", "Get Profile Successfully", getAdmin, startTime);
+      const [followersCount, followingCount] = await Promise.all([
+        Follow.countDocuments({ following: getAdmin._id }), // people who follow him
+        Follow.countDocuments({ follower: getAdmin._id }), // people he follows
+      ]);
+      const result = {
+        ...getAdmin.toObject(),
+        followers: followersCount,
+        following: followingCount,
+      };
+      return _RS.ok(res, "SUCCESS", "Get Profile Successfully", result, startTime);
     } catch (err) {
       next(err);
     }

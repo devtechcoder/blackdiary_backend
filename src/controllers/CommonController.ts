@@ -5,6 +5,7 @@ import SubCategory from "../models/SubCategory";
 import User, { UserTypes } from "../models/User";
 import Occasion from "../models/Occasion";
 import { CATEGORY_DATA } from "../constants/constants";
+import Follow from "../models/Follow";
 
 export class CommonController {
   /** API for category only for admin */
@@ -25,7 +26,7 @@ export class CommonController {
         return _RS.api(res, false, "Image Upload Failed", {}, new Date().getTime());
       }
 
-      const uploadPath = `${process.env.ASSET_URL ?? "http://localhost:7900/image/"}` + file.filename;
+      const uploadPath = file.filename;
       return _RS.api(res, true, "Image Uploaded", { path: uploadPath }, new Date().getTime());
     } catch (error) {
       console.log(error);
@@ -113,19 +114,42 @@ export class CommonController {
 
   static async getUserProfile(req, res, next) {
     try {
-      const startTime = new Date().getTime();
+      const startTime = Date.now();
       const { q } = req.query;
-      const filter: any = { is_delete: false };
-      let data = {};
-      if (q && q.trim() !== "") {
-        filter.type = { $in: [UserTypes.CUSTOMER] };
-        filter.user_name = q;
-        data = await User.findOne(filter);
+
+      if (!q || !q.trim()) {
+        return _RS.api(res, true, "search List", {}, startTime);
       }
 
-      return _RS.api(res, true, "search List", data, startTime);
+      // Build filter
+      const filter = {
+        is_delete: false,
+        type: { $in: [UserTypes.CUSTOMER] },
+        user_name: q.trim(),
+      };
+
+      // Fetch user first
+      const user = await User.findOne(filter);
+
+      if (!user) {
+        return _RS.api(res, true, "User not found", {}, startTime);
+      }
+
+      // Run 2 queries in parallel (faster)
+      const [followersCount, followingCount] = await Promise.all([
+        Follow.countDocuments({ following: user._id }), // people who follow him
+        Follow.countDocuments({ follower: user._id }), // people he follows
+      ]);
+
+      const result = {
+        ...user.toObject(),
+        followers: followersCount,
+        following: followingCount,
+      };
+
+      return _RS.api(res, true, "User profile", result, startTime);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       next(error);
     }
   }
