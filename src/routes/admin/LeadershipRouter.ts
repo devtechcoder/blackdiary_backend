@@ -1,12 +1,12 @@
 import { Router } from "express";
 import Authentication from "../../Middlewares/Authnetication";
-import { CustomerController } from "../../controllers/Admin/CustomerController";
+import { Controller } from "../../controllers/Admin/LeadershipController";
 
 import { body, param, query } from "express-validator";
 import ValidateRequest from "../../Middlewares/ValidateRequest";
 import checkPermission, { Permissions } from "../../Middlewares/Permisssion";
 
-class CustomerRouter {
+class LeadershipRouter {
   public router: Router;
 
   constructor() {
@@ -19,31 +19,30 @@ class CustomerRouter {
     this.router.post(
       "/",
       Authentication.admin,
-      checkPermission(Permissions.CUSTOMER),
+      checkPermission(Permissions.LEADERSHIP),
       [
-        // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
-        body("email").notEmpty().withMessage("Valid email must be provided"),
-        body("dob").notEmpty().withMessage("Valid dob must be provided"),
+        body("designation").notEmpty().withMessage("Valid designation must be provided"),
+        body("description").notEmpty().withMessage("Valid description must be provided"),
         body("gender").notEmpty().withMessage("Valid gender must be provided"),
       ],
       ValidateRequest,
-      CustomerController.add
+      Controller.add
     );
 
     this.router.put(
       "/:id",
       Authentication.admin,
-      checkPermission(Permissions.CUSTOMER),
+      checkPermission(Permissions.LEADERSHIP),
       [
-        // body("image").notEmpty().withMessage("Valid image must be provided"),
+        param("id").notEmpty().withMessage("Valid id must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
-        body("email").notEmpty().withMessage("Valid email must be provided"),
-        body("dob").notEmpty().withMessage("Valid dob must be provided"),
+        body("designation").notEmpty().withMessage("Valid designation must be provided"),
+        body("description").notEmpty().withMessage("Valid description must be provided"),
         body("gender").notEmpty().withMessage("Valid gender must be provided"),
       ],
       ValidateRequest,
-      CustomerController.edit
+      Controller.edit
     );
   }
 
@@ -51,30 +50,21 @@ class CustomerRouter {
     this.router.get(
       "/",
       Authentication.admin,
-      checkPermission(Permissions.CUSTOMER),
+      checkPermission(Permissions.LEADERSHIP),
       [query("page").notEmpty().withMessage("Valid page number must be provided"), query("pageSize").notEmpty().withMessage("Valid pageSize must be provided")],
       ValidateRequest,
-      CustomerController.list
-    );
-
-    this.router.get(
-      "/status/:id",
-      Authentication.admin,
-      checkPermission(Permissions.CUSTOMER),
-      [param("id").notEmpty().isMongoId().withMessage("Valid  id must be provided")],
-      ValidateRequest,
-      CustomerController.statusChange
+      Controller.list
     );
 
     this.router.delete(
       "/:id",
       Authentication.admin,
-      checkPermission(Permissions.CUSTOMER),
+      checkPermission(Permissions.LEADERSHIP),
       [param("id").notEmpty().isMongoId().withMessage("Valid  id must be provided")],
       ValidateRequest,
-      CustomerController.delete
+      Controller.delete
     );
   }
 }
 
-export default new CustomerRouter().router;
+export default new LeadershipRouter().router;

@@ -48,7 +48,7 @@ export class Server {
   enableCors() {
     const corsOptions = {
       origin: function (origin, callback) {
-        if (!origin || ["https://blackdiary.vercel.app", "https://adminblackdiary.vercel.app", "http://localhost:3000"].includes(origin)) {
+        if (!origin || ["https://blackdiary.vercel.app", "https://adminblackdiary.vercel.app", "http://localhost:3000", "http://localhost:3001"].includes(origin)) {
           callback(null, true);
         } else {
           callback(new Error("Not allowed by CORS"));

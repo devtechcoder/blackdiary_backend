@@ -20,3 +20,7 @@ export const CATEGORY_DATA = [
   { _id: "Story", name: "Story", value: "Story", sort_number: 5 },
   { _id: "Meme", name: "Meme", value: "Meme", sort_number: 6 },
 ];
+
+export const GENERAL_SETTINGS_ENUM_SLUGS = ["site_name", "copyright_text", "contact_email", "contact_phone"];
+
+export const SOCIAL_SETTINGS_ENUM_SLUGS = ["facbook_link", "twitter_link", "instagram_link", "linkedin_link", "youtube_link", "pinterest_link", "thread_link"];

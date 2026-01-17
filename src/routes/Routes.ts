@@ -9,6 +9,8 @@ import SubCategoryRouter from "./admin/SubCategoryRouter";
 import CustomerRouter from "./admin/CustomerRouter";
 import DiaryRouter from "./admin/DiaryRouter";
 import OccasionRouter from "./admin/OccasionRouter";
+import LeadershipRouter from "./admin/LeadershipRouter";
+import SettingAdminRouter from "./admin/SettingRouter";
 
 //App Routes
 import HomeRouter from "./app/HomeRouter";
@@ -23,6 +25,9 @@ import FollowRouter from "./app/followRouter";
 import CreateDiaryRouter from "./app/createDiaryRouter";
 import ShayariRouter from "./app/shayariRouter";
 import PostRouter from "./app/postRouter";
+import CommentRouter from "./app/commentRouter";
+import Leadership from "./app/LeadershipRouter";
+import CmsRouter from "./admin/CmsRouter";
 
 class Routes {
   public router: Router;
@@ -46,6 +51,8 @@ class Routes {
     this.router.use("/app/create-diary", CreateDiaryRouter);
     this.router.use("/app/shayari", ShayariRouter);
     this.router.use("/app/post", PostRouter);
+    this.router.use("/app/comment", CommentRouter);
+    this.router.use("/app/leadership", Leadership);
   }
 
   admin() {
@@ -59,6 +66,9 @@ class Routes {
     this.router.use("/admin/customer", CustomerRouter);
     this.router.use("/admin/diary", DiaryRouter);
     this.router.use("/admin/occasion", OccasionRouter);
+    this.router.use("/admin/leadership", LeadershipRouter);
+    this.router.use("/admin/cms", CmsRouter);
+    this.router.use("/admin/setting", SettingAdminRouter);
   }
 
   common() {

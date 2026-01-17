@@ -19,24 +19,16 @@ export default class FollowController {
       };
 
       let filteredQuery: any = {};
+      let lookupField = "";
 
       if (type === "follower") {
-        filteredQuery.follower = mongoose.Types.ObjectId(user_id);
-      } else if (type === "following") {
         filteredQuery.following = mongoose.Types.ObjectId(user_id);
+        lookupField = "follower";
+      } else if (type === "following") {
+        filteredQuery.follower = mongoose.Types.ObjectId(user_id);
+        lookupField = "following";
       } else {
         return _RS.api(res, false, "Invalid type parameter", {}, startTime);
-      }
-
-      if (req.query.search && req.query.search.trim()) {
-        filteredQuery.$or = [
-          {
-            name: {
-              $regex: new RegExp(req.query.search),
-              $options: "i",
-            },
-          },
-        ];
       }
 
       let query: any = [
@@ -44,9 +36,42 @@ export default class FollowController {
           $match: filteredQuery,
         },
         {
-          $sort: sort,
+          $lookup: {
+            from: "users",
+            localField: lookupField,
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: "$user",
+        },
+        {
+          $replaceRoot: { newRoot: "$user" },
         },
       ];
+
+      if (req.query.search && req.query.search.trim()) {
+        const searchRegex = new RegExp(req.query.search, "i");
+        query.push({
+          $match: {
+            $or: [{ name: searchRegex }, { user_name: searchRegex }],
+          },
+        });
+      }
+
+      query.push({
+        $project: {
+          name: 1,
+          image: 1,
+          user_name: 1,
+          profile_image: 1,
+        },
+      });
+
+      query.push({
+        $sort: sort,
+      });
 
       let myAggregate = Follow.aggregate(query);
       let list = await Follow.aggregatePaginate(myAggregate, options);

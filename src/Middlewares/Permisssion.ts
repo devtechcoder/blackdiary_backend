@@ -4,7 +4,10 @@ import User, { UserTypes } from "../models/User";
 export const Permissions = {
   DASHBOARD: "dashboard-management",
   CUSTOMER: "customer-management",
+  LEADERSHIP: "leadership-management",
+  CMS: "cms-management",
   CATEGORY: "category-management",
+  SETTING: "setting-management",
   DIARY: "diary-management",
   Occasion: "occasion-management",
 
@@ -14,7 +17,6 @@ export const Permissions = {
   STUDENT: "student-manager",
   ORDER: "order-manager",
   DRIVER: "driver-manager",
-  CMS: "cms-manager",
   DELIVERY_HISTORY: "delivery-manager",
   RATING_AND_REVIEWS: "rating-manager",
   REPORTS: "report-manager",

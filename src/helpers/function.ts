@@ -33,6 +33,10 @@ export const formattedEmail = (email) => {
   return email ? email?.trim()?.toLowerCase() : email;
 };
 
+export const getCurrentTime = () => {
+  return new Date().getTime();
+};
+
 export const formattedUserName = (value) => {
   return value ? value?.trim() : value;
 };

@@ -1,12 +1,11 @@
 import { Router } from "express";
 import Authentication from "../../Middlewares/Authnetication";
-import Controller from "../../controllers/App/postController";
+import { Controller } from "../../controllers/App/LeadershipController";
 
 import { body, param, query } from "express-validator";
 import ValidateRequest from "../../Middlewares/ValidateRequest";
-import checkPermission, { Permissions } from "../../Middlewares/Permisssion";
 
-class PostRouter {
+class LeadershipRouter {
   public router: Router;
 
   constructor() {
@@ -17,12 +16,12 @@ class PostRouter {
   public get() {
     this.router.get(
       "/",
+      Authentication.guest,
       [query("page").notEmpty().withMessage("Valid page number must be provided"), query("pageSize").notEmpty().withMessage("Valid pageSize must be provided")],
       ValidateRequest,
-      Authentication.guest,
       Controller.list
     );
   }
 }
 
-export default new PostRouter().router;
+export default new LeadershipRouter().router;

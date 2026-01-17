@@ -19,6 +19,7 @@ class ShayariRouter {
       "/",
       [query("page").notEmpty().withMessage("Valid page number must be provided"), query("pageSize").notEmpty().withMessage("Valid pageSize must be provided")],
       ValidateRequest,
+      Authentication.guest,
       Controller.list
     );
   }

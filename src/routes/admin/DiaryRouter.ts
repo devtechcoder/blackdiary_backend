@@ -23,13 +23,8 @@ class DiaryRouter {
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("category").notEmpty().withMessage("Valid category must be provided"),
-        body("sub_category_id").notEmpty().isArray().withMessage("Valid sub_category_id must be provided"),
         body("author").notEmpty().withMessage("Valid author must be provided"),
-        body("title").notEmpty().withMessage("Valid title must be provided"),
-        body("hi_title").notEmpty().withMessage("Valid hindi title must be provided"),
-        body("content").notEmpty().withMessage("Valid content must be provided"),
-        body("hi_content").notEmpty().withMessage("Valid hindi content must be provided"),
-        body("is_active").notEmpty().optional().withMessage("Valid is_active must be provided"),
+        body("type").notEmpty().withMessage("Valid type must be provided"),
       ],
       ValidateRequest,
       DiaryController.add
@@ -42,13 +37,8 @@ class DiaryRouter {
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("category").notEmpty().withMessage("Valid category must be provided"),
-        body("sub_category_id").notEmpty().isArray().withMessage("Valid sub_category_id must be provided"),
         body("author").notEmpty().withMessage("Valid author must be provided"),
-        body("title").notEmpty().withMessage("Valid title must be provided"),
-        body("hi_title").notEmpty().withMessage("Valid hindi title must be provided"),
-        body("content").notEmpty().withMessage("Valid content must be provided"),
-        body("hi_content").notEmpty().withMessage("Valid hindi content must be provided"),
-        body("is_active").notEmpty().optional().withMessage("Valid is_active must be provided"),
+        body("type").notEmpty().withMessage("Valid type must be provided"),
       ],
       ValidateRequest,
       DiaryController.edit

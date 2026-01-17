@@ -6,8 +6,8 @@ import User, { UserTypes } from "../models/User";
 import Occasion from "../models/Occasion";
 import { CATEGORY_DATA } from "../constants/constants";
 import Follow from "../models/Follow";
-
-export class CommonController {
+import Content from "../models/Content";
+export class Controller {
   /** API for category only for admin */
 
   /**
@@ -22,14 +22,20 @@ export class CommonController {
   static async uploadImage(req, res, next) {
     try {
       const file = req.file;
+
+      console.log("Uploaded File:", file);
+
       if (!file) {
         return _RS.api(res, false, "Image Upload Failed", {}, new Date().getTime());
       }
 
-      const uploadPath = file.filename;
-      return _RS.api(res, true, "Image Uploaded", { path: uploadPath }, new Date().getTime());
+      // Cloudinary gives URL in file.path
+      const imageUrl = file.path;
+
+      return _RS.api(res, true, "Image Uploaded Successfully", { url: imageUrl }, new Date().getTime());
     } catch (error) {
-      console.log(error);
+      console.log("Upload Error:", error);
+      return _RS.api(res, false, "Internal Server Error", {}, new Date().getTime());
     }
   }
 
@@ -151,6 +157,19 @@ export class CommonController {
     } catch (error) {
       console.error(error);
       next(error);
+    }
+  }
+
+  static async getCms(req, res, next) {
+    const startTime = new Date().getTime();
+    const slug = req.params.slug;
+
+    try {
+      const getData = await Content.findOne({ slug: slug });
+
+      return _RS.api(res, true, "cms data!", getData, startTime);
+    } catch (err) {
+      next(err);
     }
   }
 }

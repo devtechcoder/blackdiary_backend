@@ -6,7 +6,7 @@ class ShayariController {
   static async list(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { category, sub_category_id, occasion_id } = req.query;
+      const { category, sub_category_id, occasion_id, author } = req.query;
       let sort: any = { created_at: -1 };
 
       const options = {
@@ -35,6 +35,10 @@ class ShayariController {
         };
       }
 
+      if (author) {
+        filteredQuery.author = mongoose.Types.ObjectId(author);
+      }
+
       if (req.query.search && req.query.search.trim()) {
         const value = new RegExp(req.query.search);
         filteredQuery.$or = [
@@ -58,11 +62,32 @@ class ShayariController {
           },
         ];
       }
+      const userId = req.user.id;
 
       let query: any = [
         {
           $match: filteredQuery,
         },
+        {
+          $lookup: {
+            from: "likes", // Assuming 'likes' is your collection name for likes
+            let: { postId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [{ $eq: ["$diary_id", "$$postId"] }, { $eq: ["$liked_by", mongoose.Types.ObjectId(userId)] }],
+                  },
+                },
+              },
+            ],
+            as: "userLike",
+          },
+        },
+        {
+          $addFields: { is_liked: { $gt: [{ $size: "$userLike" }, 0] } },
+        },
+
         {
           $lookup: {
             from: "users",
@@ -73,8 +98,28 @@ class ShayariController {
         },
         { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
         {
+          $lookup: {
+            from: "follows", // Assuming 'follows' is your collection name
+            let: { authorId: "$author._id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [{ $eq: ["$following", "$$authorId"] }, { $eq: ["$follower", mongoose.Types.ObjectId(userId)] }],
+                  },
+                },
+              },
+            ],
+            as: "userFollow",
+          },
+        },
+        {
+          $addFields: { is_follow: { $gt: [{ $size: "$userFollow" }, 0] } },
+        },
+        {
           $sort: sort,
         },
+        { $project: { userLike: 0, userFollow: 0 } }, // Clean up by removing the temporary arrays
       ];
 
       let myAggregate = Diary.aggregate(query);

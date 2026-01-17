@@ -3,6 +3,7 @@ import _RS from "../../helpers/ResponseHelper";
 import Diary from "../../models/Diary";
 
 import { ADDED_BY_TYPES } from "../../constants/constants";
+import Post from "../../models/Post";
 
 export class DiaryController {
   static async list(req, res, next) {
@@ -68,34 +69,29 @@ export class DiaryController {
   static async add(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { image, occasion_ids, category, sub_category_id, hi_title, title, author, content, hi_content, is_active, is_featured } = req.body;
-      const getData = await Diary.findOne({
-        category,
-        content: content,
-        hi_content: hi_content,
-        is_delete: false,
-      });
+      const { type, image, occasion_ids, category, sub_category_id, author, content } = req.body;
 
-      if (getData) {
-        return _RS.api(res, false, "Diary already exist with this content", {}, startTime);
+      if (type === "shayari") {
+        await new Diary({
+          category,
+          sub_category_id,
+          author,
+          content,
+          occasion_ids,
+          added_by: ADDED_BY_TYPES.SELF,
+        }).save();
+      } else {
+        await new Post({
+          category,
+          sub_category_id,
+          author,
+          image,
+          occasion_ids,
+          added_by: ADDED_BY_TYPES.SELF,
+        }).save();
       }
 
-      const data = await new Diary({
-        image,
-        category,
-        sub_category_id,
-        hi_title,
-        title,
-        author,
-        content,
-        hi_content,
-        is_active,
-        is_featured,
-        occasion_ids,
-        added_by: ADDED_BY_TYPES.ADMIN,
-      }).save();
-
-      return _RS.api(res, true, "Diary has been added successfully", data, startTime);
+      return _RS.api(res, true, "Diary has been added successfully", {}, startTime);
     } catch (err) {
       next(err);
     }
@@ -104,29 +100,40 @@ export class DiaryController {
   static async edit(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { image, occasion_ids, category, sub_category_id, hi_title, title, author, content, hi_content, is_active, is_featured } = req.body;
+
+      const { type, image, occasion_ids, category, sub_category_id, author, content, is_active, is_featured } = req.body;
 
       const id = req.params.id;
 
-      const getData = await Diary.findById(id);
+      // Detect Model
+      let Model = type === "shayari" ? Diary : Post;
 
-      if (!getData) {
-        return _RS.api(res, false, "Diary Not Found", {}, startTime);
+      const data = await Model.findById(id);
+
+      if (!data) {
+        return _RS.api(res, false, `${type === "shayari" ? "Diary" : "Post"} Not Found`, {}, startTime);
       }
 
-      getData.occasion_ids = occasion_ids ? occasion_ids : getData.occasion_ids;
-      getData.category = category ? category : getData.category;
-      getData.sub_category_id = sub_category_id ? sub_category_id : getData.sub_category_id;
-      getData.hi_title = hi_title ? hi_title : getData.hi_title;
-      getData.title = title ? title : getData.title;
-      getData.author = author ? author : getData.author;
-      getData.content = content ? content : getData.content;
-      getData.hi_content = hi_content ? hi_content : getData.hi_content;
-      getData.image = image ? image : getData.image;
-      getData.is_featured = is_featured;
-      getData.save();
+      // Common fields
+      if (occasion_ids) data.occasion_ids = occasion_ids;
+      if (category) data.category = category;
+      if (sub_category_id) data.sub_category_id = sub_category_id;
+      if (author) data.author = author;
 
-      return _RS.api(res, true, "Diary has been update successfully", getData, startTime);
+      // Shayari fields
+      if (type === "shayari") {
+        if (content) data.content = content;
+      }
+
+      // Post fields
+      if (type !== "shayari") {
+        if (image) data.image = image;
+        // Posts may not use content (based on your add API)
+      }
+
+      await data.save();
+
+      return _RS.api(res, true, `${type === "shayari" ? "Diary" : "Post"} has been updated successfully`, data, startTime);
     } catch (err) {
       next(err);
     }

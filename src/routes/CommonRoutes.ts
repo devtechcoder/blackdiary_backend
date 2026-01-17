@@ -1,7 +1,9 @@
 import { Router } from "express";
+import { param } from "express-validator";
 import UploadFiles from "../Middlewares/FileUploadMiddleware";
-import { CommonController } from "../controllers/CommonController";
+import { Controller } from "../controllers/CommonController";
 import _RS from "../helpers/ResponseHelper";
+import ValidateRequest from "../Middlewares/ValidateRequest";
 
 class CommonRoutes {
   public router: Router;
@@ -13,16 +15,17 @@ class CommonRoutes {
   }
 
   public post() {
-    this.router.post("/image-upload", UploadFiles.uploadSingleImage, CommonController.uploadImage);
+    this.router.post("/image-upload", UploadFiles.uploadSingleImage, Controller.uploadImage);
   }
 
   public get() {
-    this.router.get("/categories", CommonController.categories);
-    this.router.get("/search", CommonController.searchAccount);
-    this.router.get("/get-user-profile", CommonController.getUserProfile);
-    this.router.get("/sub-categories/:id?", CommonController.subCategories);
-    this.router.get("/occasion/:occasionId?", CommonController.occasion);
-    this.router.get("/customer", CommonController.customers);
+    this.router.get("/categories", Controller.categories);
+    this.router.get("/search", Controller.searchAccount);
+    this.router.get("/get-user-profile", Controller.getUserProfile);
+    this.router.get("/sub-categories/:id?", Controller.subCategories);
+    this.router.get("/occasion/:occasionId?", Controller.occasion);
+    this.router.get("/customer", Controller.customers);
+    this.router.get("/get-cms/:slug", [param("slug").notEmpty().withMessage("Valid slug must be provided")], ValidateRequest, Controller.getCms);
   }
 }
 

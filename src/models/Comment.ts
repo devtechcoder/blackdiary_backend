@@ -5,9 +5,10 @@ const Schema = mongoose.Schema;
 
 const Comment = new Schema(
   {
-    comment: { type: String, default: null },
+    text: { type: String, default: null },
     comment_by: { type: Schema.Types.ObjectId, ref: "User", default: null },
     diary_id: { type: Schema.Types.ObjectId, ref: "Diary", default: null },
+    post_id: { type: Schema.Types.ObjectId, ref: "Post", default: null },
   },
   {
     timestamps: {
