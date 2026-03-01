@@ -5,6 +5,7 @@ import { Controller } from "../../controllers/Admin/LeadershipController";
 import { body, param, query } from "express-validator";
 import ValidateRequest from "../../Middlewares/ValidateRequest";
 import checkPermission, { Permissions } from "../../Middlewares/Permisssion";
+import fileUpload from "../../Middlewares/FileUpload";
 
 class LeadershipRouter {
   public router: Router;
@@ -20,6 +21,7 @@ class LeadershipRouter {
       "/",
       Authentication.admin,
       checkPermission(Permissions.LEADERSHIP),
+      fileUpload("leadership-image").single("image"),
       [
         body("name").notEmpty().withMessage("Valid name must be provided"),
         body("designation").notEmpty().withMessage("Valid designation must be provided"),
@@ -27,13 +29,15 @@ class LeadershipRouter {
         body("gender").notEmpty().withMessage("Valid gender must be provided"),
       ],
       ValidateRequest,
-      Controller.add
+      Controller.add,
     );
 
     this.router.put(
       "/:id",
       Authentication.admin,
       checkPermission(Permissions.LEADERSHIP),
+      fileUpload("leadership-image").single("image"),
+
       [
         param("id").notEmpty().withMessage("Valid id must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
@@ -42,7 +46,7 @@ class LeadershipRouter {
         body("gender").notEmpty().withMessage("Valid gender must be provided"),
       ],
       ValidateRequest,
-      Controller.edit
+      Controller.edit,
     );
   }
 
@@ -53,7 +57,7 @@ class LeadershipRouter {
       checkPermission(Permissions.LEADERSHIP),
       [query("page").notEmpty().withMessage("Valid page number must be provided"), query("pageSize").notEmpty().withMessage("Valid pageSize must be provided")],
       ValidateRequest,
-      Controller.list
+      Controller.list,
     );
 
     this.router.delete(
@@ -62,7 +66,7 @@ class LeadershipRouter {
       checkPermission(Permissions.LEADERSHIP),
       [param("id").notEmpty().isMongoId().withMessage("Valid  id must be provided")],
       ValidateRequest,
-      Controller.delete
+      Controller.delete,
     );
   }
 }

@@ -1,6 +1,7 @@
 import User from "../../models/User";
 import _RS from "../../helpers/ResponseHelper";
 import Auth from "../../Utils/Auth";
+import { deleteLocalImageIfExists } from "../../helpers/function";
 // import MailHelper from "../../helpers/MailHelper";
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -135,7 +136,7 @@ export class AuthController {
 
   static async updateProfile(req, res, next) {
     const startTime = new Date().getTime();
-    const { email, name, image, bio, dob, gender, pincode, city_id, state_id, country_id, address, website_url, mobile_number, country_code } = req.body;
+    const { email, name, isImageRemove, bio, dob, gender, pincode, city_id, state_id, country_id, address, website_url, mobile_number, country_code } = req.body;
     try {
       let getAdmin = await User.findOne({
         _id: req.user.id,
@@ -143,6 +144,14 @@ export class AuthController {
 
       if (!getAdmin) {
         return _RS.notFound(res, "NOTFOUND", "User not exist , go to signup page", getAdmin, new Date().getTime());
+      }
+
+      if (req.file) {
+        deleteLocalImageIfExists(getAdmin.image);
+        getAdmin.image = req.file.path;
+      } else if (isImageRemove === "true" || isImageRemove === true) {
+        deleteLocalImageIfExists(getAdmin.image);
+        getAdmin.image = null;
       }
 
       //about us
@@ -160,7 +169,6 @@ export class AuthController {
       getAdmin.mobile_number = mobile_number ? mobile_number : getAdmin.mobile_number;
       getAdmin.country_code = country_code ? country_code : getAdmin.country_code;
       getAdmin.dob = dob ? dob : getAdmin.dob;
-      getAdmin.image = image ? image : getAdmin.image;
       await getAdmin.save();
 
       return _RS.ok(res, "SUCCESS", "Update Profile Successfully", getAdmin, startTime);

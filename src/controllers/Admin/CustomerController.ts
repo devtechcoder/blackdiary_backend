@@ -1,7 +1,9 @@
 import * as mongoose from "mongoose";
+
 import _RS from "../../helpers/ResponseHelper";
 import User, { UserTypes } from "../../models/User";
 import { ADDED_BY_TYPES } from "../../constants/constants";
+import { deleteLocalImageIfExists } from "../../helpers/function";
 
 export class CustomerController {
   static async list(req, res, next) {
@@ -60,7 +62,7 @@ export class CustomerController {
   static async add(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { image, name, email, mobile_number, country_code, dob, gender } = req.body;
+      const { name, email, mobile_number, country_code, dob, gender } = req.body;
 
       const formattedEmail = email ? email?.toLowerCase() : email;
       let isAlready = await User.findOne({
@@ -84,6 +86,11 @@ export class CustomerController {
         return _RS.api(res, false, "User already exist with this mobile number!", {}, startTime);
       }
 
+      let image = null;
+      if (req.file) {
+        image = req.file.path;
+      }
+
       const create = await new User({
         image,
         name,
@@ -105,7 +112,7 @@ export class CustomerController {
   static async edit(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { image, name, email, mobile_number, country_code, dob, gender } = req.body;
+      const { name, email, mobile_number, country_code, dob, gender, isImageRemove } = req.body;
       const id = req.params.id;
 
       const formattedEmail = email ? email?.toLowerCase()?.trim() : email;
@@ -138,14 +145,21 @@ export class CustomerController {
         return _RS.api(res, false, "User Not Found!", {}, startTime);
       }
 
+      if (req.file) {
+        deleteLocalImageIfExists(getData.image);
+        getData.image = req.file.path;
+      } else if (isImageRemove === "true" || isImageRemove === true) {
+        deleteLocalImageIfExists(getData.image);
+        getData.image = null;
+      }
+
       getData.name = name ? name : getData.name;
       getData.email = email ? formattedEmail : getData.email;
       getData.mobile_number = mobile_number ? mobile_number : getData.mobile_number;
       getData.country_code = country_code ? country_code : getData.country_code;
       getData.dob = dob ? dob : getData.dob;
       getData.gender = gender ? gender : getData.gender;
-      getData.image = image ? image : getData.image;
-      getData.save();
+      await getData.save();
 
       return _RS.api(res, true, "User has been update successfully!", getData, startTime);
     } catch (err) {

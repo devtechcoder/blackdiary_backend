@@ -7,6 +7,8 @@ import Occasion from "../models/Occasion";
 import { CATEGORY_DATA } from "../constants/constants";
 import Follow from "../models/Follow";
 import Content from "../models/Content";
+import Master from "../models/Master";
+import Setting from "../models/Setting";
 export class Controller {
   /** API for category only for admin */
 
@@ -168,6 +170,41 @@ export class Controller {
       const getData = await Content.findOne({ slug: slug });
 
       return _RS.api(res, true, "cms data!", getData, startTime);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getMasters(req, res, next) {
+    const startTime = new Date().getTime();
+    const slug = req.params.slug;
+
+    try {
+      let filter: any = { is_delete: false };
+      if (slug) {
+        filter.slug = slug;
+      }
+      const getData = await Master.find(filter).sort({ priority: 1 });
+
+      return _RS.api(res, true, "master data!", getData, startTime);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getSettings(req, res, next) {
+    const startTime = new Date().getTime();
+    const slug = req.params.slug;
+
+    let filter: any = {};
+    if (slug) {
+      filter.group = slug;
+    }
+
+    try {
+      const getData = await Setting.find(filter);
+
+      return _RS.api(res, true, "settings data!", getData, startTime);
     } catch (err) {
       next(err);
     }

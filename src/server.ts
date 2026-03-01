@@ -8,6 +8,7 @@ import Routes from "./routes/Routes";
 import { NextFunction } from "express";
 import path = require("path");
 import { ReqInterface, ResInterface } from "./interfaces/RequestInterface";
+import { optimizeImageUrls } from "../src/Middlewares/optimizeImage.middleware";
 // const app = express();
 // const cookieParser = require("cookie-parser");
 // let’s you use the cookieParser in your application
@@ -61,6 +62,7 @@ export class Server {
   }
 
   configBodyParser() {
+    this.app.use(optimizeImageUrls);
     this.app.use(express.urlencoded({ extended: true, limit: "10mb" }));
     this.app.use(express.json({ limit: "10mb" }));
     this.app.set("view engine", "ejs");
@@ -74,8 +76,7 @@ export class Server {
       next();
     });
     this.app.use("/api-doc", express.static(path.resolve(process.cwd() + "/apidoc")));
-    this.app.use("/img", express.static(path.resolve(process.cwd() + "/assest/images")));
-    this.app.use("/image", express.static(path.resolve(process.cwd(), "src", "uploads")));
+    this.app.use("/uploads/images", express.static(path.join(process.cwd(), "uploads", "images")));
 
     this.app.use("/api", Routes);
   }

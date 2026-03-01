@@ -6,6 +6,8 @@ import { body, param, query } from "express-validator";
 import ValidateRequest from "../../Middlewares/ValidateRequest";
 import checkPermission, { Permissions } from "../../Middlewares/Permisssion";
 
+import fileUpload from "../../Middlewares/FileUpload";
+
 class CustomerRouter {
   public router: Router;
 
@@ -20,6 +22,8 @@ class CustomerRouter {
       "/",
       Authentication.admin,
       checkPermission(Permissions.CUSTOMER),
+      fileUpload("profile-picture").single("profile_picture"),
+
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
@@ -28,13 +32,14 @@ class CustomerRouter {
         body("gender").notEmpty().withMessage("Valid gender must be provided"),
       ],
       ValidateRequest,
-      CustomerController.add
+      CustomerController.add,
     );
 
     this.router.put(
       "/:id",
       Authentication.admin,
       checkPermission(Permissions.CUSTOMER),
+      fileUpload("profile-picture").single("profile_picture"),
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
@@ -43,7 +48,7 @@ class CustomerRouter {
         body("gender").notEmpty().withMessage("Valid gender must be provided"),
       ],
       ValidateRequest,
-      CustomerController.edit
+      CustomerController.edit,
     );
   }
 
@@ -54,7 +59,7 @@ class CustomerRouter {
       checkPermission(Permissions.CUSTOMER),
       [query("page").notEmpty().withMessage("Valid page number must be provided"), query("pageSize").notEmpty().withMessage("Valid pageSize must be provided")],
       ValidateRequest,
-      CustomerController.list
+      CustomerController.list,
     );
 
     this.router.get(
@@ -63,7 +68,7 @@ class CustomerRouter {
       checkPermission(Permissions.CUSTOMER),
       [param("id").notEmpty().isMongoId().withMessage("Valid  id must be provided")],
       ValidateRequest,
-      CustomerController.statusChange
+      CustomerController.statusChange,
     );
 
     this.router.delete(
@@ -72,7 +77,7 @@ class CustomerRouter {
       checkPermission(Permissions.CUSTOMER),
       [param("id").notEmpty().isMongoId().withMessage("Valid  id must be provided")],
       ValidateRequest,
-      CustomerController.delete
+      CustomerController.delete,
     );
   }
 }

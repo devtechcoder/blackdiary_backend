@@ -1,7 +1,7 @@
 import * as mongoose from "mongoose";
 import _RS from "../../helpers/ResponseHelper";
 import Leadership from "../../models/Leadership";
-import { getCurrentTime } from "../../helpers/function";
+import { deleteLocalImageIfExists, getCurrentTime } from "../../helpers/function";
 
 export class Controller {
   static async list(req, res, next) {
@@ -57,8 +57,12 @@ export class Controller {
   static async add(req, res, next) {
     try {
       const startTime = getCurrentTime();
-      const { name, designation, description, gender, sequence = 1, image } = req.body;
+      const { name, designation, description, gender, sequence = 1 } = req.body;
 
+      let image = null;
+      if (req.file) {
+        image = req.file.path;
+      }
       const create = await new Leadership({
         name,
         designation,
@@ -77,7 +81,7 @@ export class Controller {
   static async edit(req, res, next) {
     try {
       const startTime = getCurrentTime();
-      const { name, designation, description, gender, sequence = 1, image } = req.body;
+      const { name, designation, description, gender, sequence = 1, isImageRemove } = req.body;
       const id = req.params.id;
 
       const getData = await Leadership.findById(id);
@@ -86,12 +90,19 @@ export class Controller {
         return _RS.api(res, false, "Leadership Not Found!", {}, startTime);
       }
 
+      if (req.file) {
+        deleteLocalImageIfExists(getData.image);
+        getData.image = req.file.path;
+      } else if (isImageRemove === "true" || isImageRemove === true) {
+        deleteLocalImageIfExists(getData.image);
+        getData.image = null;
+      }
+
       getData.name = name ? name : getData.name;
       getData.designation = designation ? designation : getData.designation;
       getData.description = description ? description : getData.description;
       getData.gender = gender ? gender : getData.gender;
       getData.sequence = sequence ? sequence : getData.sequence;
-      getData.image = image ? image : getData.image;
 
       await getData.save();
 

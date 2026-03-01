@@ -2,6 +2,7 @@ import Banner from "../../models/Banner";
 import _RS from "../../helpers/ResponseHelper";
 import * as mongoose from "mongoose";
 import { ADDED_BY_TYPES } from "../../constants/constants";
+import { deleteLocalImageIfExists } from "../../helpers/function";
 
 export class BannerController {
   static async list(req, res, next) {
@@ -77,7 +78,7 @@ export class BannerController {
           page,
           pageSize,
         },
-        startTime
+        startTime,
       );
     } catch (error) {
       console.error("Error:", error);
@@ -89,12 +90,15 @@ export class BannerController {
     try {
       const startTime = new Date().getTime();
       const { title, description, image, mobile_image, start_date, end_date, is_active, sort_order, rotation_time, banner_link, position, category, sub_category_ids, occasion_ids } = req.body;
+      const files = (req.files || {}) as any;
+      const imageFilePath = files?.image?.[0]?.path || image || null;
+      const mobileImageFilePath = files?.mobile_image?.[0]?.path || mobile_image || null;
 
       const addBanner = await Banner.create({
         title,
         description,
-        image,
-        mobile_image,
+        image: imageFilePath,
+        mobile_image: mobileImageFilePath,
         start_date,
         end_date,
         is_active,
@@ -119,7 +123,25 @@ export class BannerController {
       const startTime = new Date().getTime();
       const id = req.params.id;
       const country_id = req.country_id;
-      const { title, description, image, mobile_image, start_date, end_date, is_active, sort_order, rotation_time, banner_link, position, category, sub_category_ids, occasion_ids } = req.body;
+      const {
+        isImageRemove,
+        isMobileImageRemove,
+        title,
+        description,
+        image,
+        mobile_image,
+        start_date,
+        end_date,
+        is_active,
+        sort_order,
+        rotation_time,
+        banner_link,
+        position,
+        category,
+        sub_category_ids,
+        occasion_ids,
+      } = req.body;
+      const files = (req.files || {}) as any;
 
       const banner = await Banner.findById(id);
 
@@ -129,8 +151,25 @@ export class BannerController {
 
       banner.title = title ? title : banner.title;
       banner.description = description ? description : banner.description;
-      banner.image = image ? image : banner.image;
-      banner.mobile_image = mobile_image ? mobile_image : banner.mobile_image;
+      if (files?.image?.[0]?.path) {
+        deleteLocalImageIfExists(banner.image);
+        banner.image = files.image[0].path;
+      } else if (isImageRemove === "true" || isImageRemove === true) {
+        deleteLocalImageIfExists(banner.image);
+        banner.image = null;
+      } else {
+        banner.image = image ? image : banner.image;
+      }
+
+      if (files?.mobile_image?.[0]?.path) {
+        deleteLocalImageIfExists(banner.mobile_image);
+        banner.mobile_image = files.mobile_image[0].path;
+      } else if (isMobileImageRemove === "true" || isMobileImageRemove === true) {
+        deleteLocalImageIfExists(banner.mobile_image);
+        banner.mobile_image = null;
+      } else {
+        banner.mobile_image = mobile_image ? mobile_image : banner.mobile_image;
+      }
       banner.start_date = start_date ? start_date : banner.start_date;
       banner.end_date = end_date ? end_date : banner.end_date;
       banner.sort_order = sort_order ? sort_order : banner.sort_order;

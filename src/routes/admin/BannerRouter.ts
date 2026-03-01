@@ -5,6 +5,7 @@ import { body, param, query } from "express-validator";
 import _RS from "../../helpers/ResponseHelper";
 import checkPermission, { Permissions } from "../../Middlewares/Permisssion";
 import { BannerController } from "../../controllers/Admin/BannerController";
+import fileUpload from "../../Middlewares/FileUpload";
 
 class BannerRouter {
   public router: Router;
@@ -20,10 +21,14 @@ class BannerRouter {
       "/",
       Authentication.admin,
       checkPermission(Permissions.CMS),
+      fileUpload("banner-image").fields([
+        { name: "image", maxCount: 1 },
+        { name: "mobile_image", maxCount: 1 },
+      ]),
       [
         body("title").notEmpty().withMessage("Valid title must be provided"),
         // body("description").notEmpty().withMessage("Valid description must be provided"),
-        body("image").notEmpty().withMessage("Valid image must be provided"),
+        // image comes via multipart file field
         // body("mobile_image").notEmpty().withMessage("Valid mobile_image must be provided"),
         body("start_date").notEmpty().withMessage("Valid start_date must be provided"),
         body("end_date").notEmpty().withMessage("Valid end_date must be provided"),
@@ -36,18 +41,22 @@ class BannerRouter {
         // body("occasion_ids").notEmpty().withMessage("Valid occasion_ids must be provided"),
       ],
       ValidateRequest,
-      BannerController.add
+      BannerController.add,
     );
 
     this.router.put(
       "/:id",
       Authentication.admin,
       checkPermission(Permissions.CMS),
+      fileUpload("banner-image").fields([
+        { name: "image", maxCount: 1 },
+        { name: "mobile_image", maxCount: 1 },
+      ]),
       [
         param("id").notEmpty().isMongoId().withMessage("Valid id must be provided"),
         body("title").notEmpty().withMessage("Valid title must be provided"),
         // body("description").notEmpty().withMessage("Valid description must be provided"),
-        body("image").notEmpty().withMessage("Valid image must be provided"),
+        // image comes via multipart file field
         // body("mobile_image").notEmpty().withMessage("Valid mobile_image must be provided"),
         body("start_date").notEmpty().withMessage("Valid start_date must be provided"),
         body("end_date").notEmpty().withMessage("Valid end_date must be provided"),
@@ -60,7 +69,7 @@ class BannerRouter {
         // body("occasion_ids").notEmpty().withMessage("Valid occasion_ids must be provided"),
       ],
       ValidateRequest,
-      BannerController.edit
+      BannerController.edit,
     );
 
     this.router.put(
@@ -70,7 +79,7 @@ class BannerRouter {
       [param("id").notEmpty().isMongoId().withMessage("Valid id must be provided")],
       ValidateRequest,
       Authentication.userLanguage,
-      BannerController.statusChange
+      BannerController.statusChange,
     );
 
     this.router.delete(
@@ -80,7 +89,7 @@ class BannerRouter {
       [param("id").notEmpty().isMongoId().withMessage("Valid id must be provided")],
       ValidateRequest,
       Authentication.userLanguage,
-      BannerController.delete
+      BannerController.delete,
     );
   }
 
@@ -91,7 +100,7 @@ class BannerRouter {
       checkPermission(Permissions.CMS),
       [query("page").notEmpty().withMessage("Valid page number must be provided"), query("pageSize").notEmpty().withMessage("Valid page number must be provided")],
       ValidateRequest,
-      BannerController.list
+      BannerController.list,
     );
   }
 }

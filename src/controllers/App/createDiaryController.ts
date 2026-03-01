@@ -9,7 +9,7 @@ class CreateDiaryController {
   static async publish(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { type, image, occasion_ids, category, sub_category_id, author, content, is_active } = req.body;
+      const { type, occasion_ids, category, sub_category_id, author, content, is_active } = req.body;
 
       if (type === "shayari") {
         await new Diary({
@@ -21,6 +21,10 @@ class CreateDiaryController {
           added_by: ADDED_BY_TYPES.SELF,
         }).save();
       } else {
+        let image = null;
+        if (req.file) {
+          image = req.file.path;
+        }
         await new Post({
           category,
           sub_category_id,

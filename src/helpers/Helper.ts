@@ -14,11 +14,7 @@ class Helper {
     };
     const chars = [];
     for (let key in options) {
-      if (
-        options.hasOwnProperty(key) &&
-        options[key] &&
-        optionsChars.hasOwnProperty(key)
-      ) {
+      if (options.hasOwnProperty(key) && options[key] && optionsChars.hasOwnProperty(key)) {
         chars.push(optionsChars[key]);
       }
     }
@@ -34,9 +30,7 @@ class Helper {
       length = length - chars.length;
       for (let i = 0; i < length; i++) {
         const index = Math.floor(Math.random() * chars.length);
-        password += chars[index].charAt(
-          Math.floor(Math.random() * chars[index].length)
-        );
+        password += chars[index].charAt(Math.floor(Math.random() * chars[index].length));
       }
     }
 
@@ -51,11 +45,7 @@ class Helper {
     };
     const chars = [];
     for (let key in options) {
-      if (
-        options.hasOwnProperty(key) &&
-        options[key] &&
-        optionsChars.hasOwnProperty(key)
-      ) {
+      if (options.hasOwnProperty(key) && options[key] && optionsChars.hasOwnProperty(key)) {
         chars.push(optionsChars[key]);
       }
     }
@@ -65,17 +55,13 @@ class Helper {
     let randomString = "";
 
     for (let j = 0; j < chars.length; j++) {
-      randomString += chars[j].charAt(
-        Math.floor(Math.random() * chars[j].length)
-      );
+      randomString += chars[j].charAt(Math.floor(Math.random() * chars[j].length));
     }
     if (length > chars.length) {
       length = length - chars.length;
       for (let i = 0; i < length; i++) {
         const index = Math.floor(Math.random() * chars.length);
-        randomString += chars[index].charAt(
-          Math.floor(Math.random() * chars[index].length)
-        );
+        randomString += chars[index].charAt(Math.floor(Math.random() * chars[index].length));
       }
     }
 

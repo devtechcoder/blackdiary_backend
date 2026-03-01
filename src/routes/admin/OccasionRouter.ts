@@ -5,6 +5,7 @@ import { OccasionController } from "../../controllers/Admin/OccasionController";
 import { body, param, query } from "express-validator";
 import ValidateRequest from "../../Middlewares/ValidateRequest";
 import checkPermission, { Permissions } from "../../Middlewares/Permisssion";
+import fileUpload from "../../Middlewares/FileUpload";
 
 class OccasionRouter {
   public router: Router;
@@ -20,6 +21,7 @@ class OccasionRouter {
       "/",
       Authentication.admin,
       checkPermission(Permissions.Occasion),
+      fileUpload("occasion-image").single("image"),
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
@@ -27,13 +29,15 @@ class OccasionRouter {
         body("is_active").notEmpty().optional().withMessage("Valid is_active must be provided"),
       ],
       ValidateRequest,
-      OccasionController.add
+      OccasionController.add,
     );
 
     this.router.put(
       "/:id",
       Authentication.admin,
       checkPermission(Permissions.Occasion),
+      fileUpload("occasion-image").single("image"),
+
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
@@ -41,7 +45,7 @@ class OccasionRouter {
         body("is_active").notEmpty().optional().withMessage("Valid is_active must be provided"),
       ],
       ValidateRequest,
-      OccasionController.edit
+      OccasionController.edit,
     );
   }
 
@@ -52,7 +56,7 @@ class OccasionRouter {
       checkPermission(Permissions.Occasion),
       [query("page").notEmpty().withMessage("Valid page number must be provided"), query("pageSize").notEmpty().withMessage("Valid pageSize must be provided")],
       ValidateRequest,
-      OccasionController.list
+      OccasionController.list,
     );
 
     this.router.get(
@@ -61,7 +65,7 @@ class OccasionRouter {
       checkPermission(Permissions.Occasion),
       [param("id").notEmpty().isMongoId().withMessage("Valid  id must be provided")],
       ValidateRequest,
-      OccasionController.statusChange
+      OccasionController.statusChange,
     );
 
     this.router.delete(
@@ -70,7 +74,7 @@ class OccasionRouter {
       checkPermission(Permissions.Occasion),
       [param("id").notEmpty().isMongoId().withMessage("Valid  id must be provided")],
       ValidateRequest,
-      OccasionController.delete
+      OccasionController.delete,
     );
   }
 }

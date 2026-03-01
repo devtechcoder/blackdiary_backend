@@ -28,6 +28,7 @@ import PostRouter from "./app/postRouter";
 import CommentRouter from "./app/commentRouter";
 import Leadership from "./app/LeadershipRouter";
 import CmsRouter from "./admin/CmsRouter";
+import MasterAdminRouter from "./admin/MasterRouter";
 
 class Routes {
   public router: Router;
@@ -69,6 +70,7 @@ class Routes {
     this.router.use("/admin/leadership", LeadershipRouter);
     this.router.use("/admin/cms", CmsRouter);
     this.router.use("/admin/setting", SettingAdminRouter);
+    this.router.use("/admin/master", MasterAdminRouter);
   }
 
   common() {

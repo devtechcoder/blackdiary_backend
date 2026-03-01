@@ -25,7 +25,9 @@ class CommonRoutes {
     this.router.get("/sub-categories/:id?", Controller.subCategories);
     this.router.get("/occasion/:occasionId?", Controller.occasion);
     this.router.get("/customer", Controller.customers);
-    this.router.get("/get-cms/:slug", [param("slug").notEmpty().withMessage("Valid slug must be provided")], ValidateRequest, Controller.getCms);
+    this.router.get("/get-cms/:slug?", Controller.getCms);
+    this.router.get("/get-masters/:slug?", Controller.getMasters);
+    this.router.get("/get-settings/:slug?", Controller.getSettings);
   }
 }
 

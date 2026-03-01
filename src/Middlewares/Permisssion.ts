@@ -6,6 +6,7 @@ export const Permissions = {
   CUSTOMER: "customer-management",
   LEADERSHIP: "leadership-management",
   CMS: "cms-management",
+  MASTER: "master-management",
   CATEGORY: "category-management",
   SETTING: "setting-management",
   DIARY: "diary-management",

@@ -2,6 +2,7 @@ import * as mongoose from "mongoose";
 import _RS from "../../helpers/ResponseHelper";
 import Occasion from "../../models/Occasion";
 import { ADDED_BY_TYPES } from "../../constants/constants";
+import { deleteLocalImageIfExists } from "../../helpers/function";
 
 export class OccasionController {
   static async list(req, res, next) {
@@ -64,7 +65,7 @@ export class OccasionController {
   static async add(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { image, name, hi_name, description, hi_description, sort_number, is_active, is_featured } = req.body;
+      const { name, hi_name, description, hi_description, sort_number, is_active, is_featured } = req.body;
       let getData = await Occasion.findOne({
         name: name,
         is_delete: false,
@@ -81,6 +82,11 @@ export class OccasionController {
 
       if (getData) {
         return _RS.api(res, false, "Occasion already exist with this sorting number!", {}, startTime);
+      }
+
+      let image = null;
+      if (req.file) {
+        image = req.file.path;
       }
 
       const data = await new Occasion({
@@ -104,7 +110,7 @@ export class OccasionController {
   static async edit(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { image, name, hi_name, description, hi_description, sort_number, is_active, is_featured } = req.body;
+      const { isImageRemove, name, hi_name, description, hi_description, sort_number, is_active, is_featured } = req.body;
       const id = req.params.id;
 
       const getData = await Occasion.findById(id);
@@ -133,12 +139,19 @@ export class OccasionController {
         return _RS.api(res, false, "Occasion already exist with this sorting number!", {}, startTime);
       }
 
+      if (req.file) {
+        deleteLocalImageIfExists(getData.image);
+        getData.image = req.file.path;
+      } else if (isImageRemove === "true" || isImageRemove === true) {
+        deleteLocalImageIfExists(getData.image);
+        getData.image = null;
+      }
+
       getData.name = name ? name : getData.name;
       getData.hi_name = hi_name ? hi_name : getData.hi_name;
       getData.description = description ? description : getData.description;
       getData.hi_description = hi_description ? hi_description : getData.hi_description;
       getData.sort_number = sort_number ? sort_number : getData.sort_number;
-      getData.image = image ? image : getData.image;
       getData.is_active = is_active;
       getData.is_featured = is_featured;
       getData.save();
