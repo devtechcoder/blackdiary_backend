@@ -60,9 +60,7 @@ async function optimizeSingleImage(url) {
     if (/^https?:\/\//i.test(url)) return url;
 
     const normalizedUrl = url.replace(/\\/g, "/");
-    const localPath = path.isAbsolute(normalizedUrl)
-      ? normalizedUrl
-      : path.join(process.cwd(), normalizedUrl.replace(/^\/+/, ""));
+    const localPath = path.isAbsolute(normalizedUrl) ? normalizedUrl : path.join(process.cwd(), normalizedUrl.replace(/^\/+/, ""));
 
     if (!fs.existsSync(localPath)) return url;
     return normalizedUrl;
@@ -81,3 +79,5 @@ function buildPublicImageUrl(imagePath: string) {
     .replace(/^\/+/, "");
   return `${IMAGE_BASE_URL}/${normalizedPath}`;
 }
+
+export default optimizeImageUrls;
