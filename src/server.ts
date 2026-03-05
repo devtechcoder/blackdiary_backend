@@ -8,7 +8,7 @@ import Routes from "./routes/Routes";
 import { NextFunction } from "express";
 import path = require("path");
 import { ReqInterface, ResInterface } from "./interfaces/RequestInterface";
-import optimizeImageUrls from "../src/Middlewares/optimizeImage.middleware";
+import optimizeImageUrls from "./Middlewares/optimizeImage.middleware";
 // const app = express();
 // const cookieParser = require("cookie-parser");
 // let’s you use the cookieParser in your application
