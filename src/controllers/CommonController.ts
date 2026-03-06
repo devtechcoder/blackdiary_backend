@@ -9,6 +9,7 @@ import Follow from "../models/Follow";
 import Content from "../models/Content";
 import Master from "../models/Master";
 import Setting from "../models/Setting";
+import Seo from "../models/Seo";
 export class Controller {
   /** API for category only for admin */
 
@@ -205,6 +206,23 @@ export class Controller {
       const getData = await Setting.find(filter);
 
       return _RS.api(res, true, "settings data!", getData, startTime);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getSeo(req, res, next) {
+    const startTime = new Date().getTime();
+    const pageKey = req.params.pageKey;
+
+    try {
+      if (pageKey) {
+        const getData = await Seo.findOne({ page_key: pageKey });
+        return _RS.api(res, true, "seo data!", getData || {}, startTime);
+      }
+
+      const getData = await Seo.find({}).sort({ created_at: -1 });
+      return _RS.api(res, true, "seo data!", getData, startTime);
     } catch (err) {
       next(err);
     }

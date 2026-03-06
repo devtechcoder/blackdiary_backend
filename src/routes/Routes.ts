@@ -11,6 +11,9 @@ import DiaryRouter from "./admin/DiaryRouter";
 import OccasionRouter from "./admin/OccasionRouter";
 import LeadershipRouter from "./admin/LeadershipRouter";
 import SettingAdminRouter from "./admin/SettingRouter";
+import SeoAdminRouter from "./admin/SeoRouter";
+import EnquiryAdminRouter from "./admin/EnquiryRouter";
+import ContactEnquiryRouter from "./ContactEnquiryRouter";
 
 //App Routes
 import HomeRouter from "./app/HomeRouter";
@@ -70,11 +73,14 @@ class Routes {
     this.router.use("/admin/leadership", LeadershipRouter);
     this.router.use("/admin/cms", CmsRouter);
     this.router.use("/admin/setting", SettingAdminRouter);
+    this.router.use("/admin/seo", SeoAdminRouter);
+    this.router.use("/admin/enquiries", EnquiryAdminRouter);
     this.router.use("/admin/master", MasterAdminRouter);
   }
 
   common() {
     this.router.use("/common", CommonRoutes);
+    this.router.use("/contact-enquiry", ContactEnquiryRouter);
   }
 }
 export default new Routes().router;

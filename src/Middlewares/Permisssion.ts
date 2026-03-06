@@ -9,6 +9,7 @@ export const Permissions = {
   MASTER: "master-management",
   CATEGORY: "category-management",
   SETTING: "setting-management",
+  ENQUIRY: "enquiry-management",
   DIARY: "diary-management",
   Occasion: "occasion-management",
 
