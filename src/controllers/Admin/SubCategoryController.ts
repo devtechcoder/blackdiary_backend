@@ -3,8 +3,37 @@ import _RS from "../../helpers/ResponseHelper";
 import SubCategory from "../../models/SubCategory";
 import { UserTypes } from "../../models/User";
 import { ChangeLogAction } from "../../models/ChangeLog";
-import { changeLog } from "../../helpers/function";
+import { changeLog, deleteLocalImageIfExists } from "../../helpers/function";
 import { ADDED_BY_TYPES } from "../../constants/constants";
+
+const normalizeCategory = (category: any) => {
+  if (Array.isArray(category)) {
+    return category;
+  }
+
+  if (typeof category === "string") {
+    const trimmed = category.trim();
+    if (!trimmed) return [];
+
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (error) {
+      // fallback for non JSON strings
+    }
+
+    if (trimmed.includes(",")) {
+      return trimmed
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    return [trimmed];
+  }
+
+  return [];
+};
 
 export class SubCategoryController {
   static async list(req, res, next) {
@@ -82,7 +111,9 @@ export class SubCategoryController {
   static async add(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { image, bg_color, name, hi_name, sort_number, added_by, is_featured, is_active, category } = req.body;
+      const { bg_color, name, hi_name, sort_number, added_by, is_featured, is_active } = req.body;
+      const category = normalizeCategory(req.body.category);
+      const image = req.file?.path || null;
 
       let isAlready = await SubCategory.findOne({
         category,
@@ -130,7 +161,7 @@ export class SubCategoryController {
   static async edit(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { image, name, hi_name, sort_number, is_featured, is_active, category, bg_color } = req.body;
+      const { isImageRemove, name, hi_name, sort_number, is_featured, is_active, bg_color } = req.body;
       const id = req.params.id;
 
       const getSubCategory = await SubCategory.findById(id);
@@ -138,10 +169,12 @@ export class SubCategoryController {
       if (!getSubCategory) {
         return _RS.notFound(res, "NOTFOUND", "Sub Category Not Found", {}, startTime);
       }
+      const category = normalizeCategory(req.body.category);
+      const normalizedCategory = category.length ? category : getSubCategory.category;
 
       let isAlready = await SubCategory.findOne({
         _id: { $ne: id },
-        category,
+        category: normalizedCategory,
         name,
         is_delete: false,
       });
@@ -152,7 +185,7 @@ export class SubCategoryController {
 
       isAlready = await SubCategory.findOne({
         _id: { $ne: id },
-        category,
+        category: normalizedCategory,
         name,
         sort_number,
         is_delete: false,
@@ -162,15 +195,22 @@ export class SubCategoryController {
         return _RS.api(res, false, "Sub Category already exist with this sort number", isAlready, startTime);
       }
 
+      if (req.file) {
+        deleteLocalImageIfExists(getSubCategory.image);
+        getSubCategory.image = req.file.path;
+      } else if (isImageRemove === "true" || isImageRemove === true) {
+        deleteLocalImageIfExists(getSubCategory.image);
+        getSubCategory.image = null;
+      }
+
       getSubCategory.name = name ? name : getSubCategory.name;
       getSubCategory.hi_name = hi_name ? hi_name : getSubCategory.hi_name;
       getSubCategory.sort_number = sort_number ? sort_number : getSubCategory.sort_number;
-      getSubCategory.category = category ? category : getSubCategory.category;
-      getSubCategory.image = image ? image : getSubCategory.image;
+      getSubCategory.category = normalizedCategory;
       getSubCategory.bg_color = bg_color ? bg_color : getSubCategory.bg_color;
       getSubCategory.is_featured = is_featured;
       getSubCategory.is_active = is_active;
-      getSubCategory.save();
+      await getSubCategory.save();
 
       if (req.user.type == UserTypes.TEACHER) {
         await changeLog(ChangeLogAction.UPDATE, `Updated Sub Category ${getSubCategory?.name}.`, req.user.id);

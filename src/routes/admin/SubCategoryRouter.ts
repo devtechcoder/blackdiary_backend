@@ -5,6 +5,7 @@ import { SubCategoryController } from "../../controllers/Admin/SubCategoryContro
 import { body, param, query } from "express-validator";
 import ValidateRequest from "../../Middlewares/ValidateRequest";
 import checkPermission, { Permissions } from "../../Middlewares/Permisssion";
+import fileUpload from "../../Middlewares/FileUpload";
 
 class SubCategoryRouter {
   public router: Router;
@@ -20,6 +21,7 @@ class SubCategoryRouter {
       "/",
       Authentication.admin,
       checkPermission(Permissions.SUBCATEGORY),
+      fileUpload("sub-category-image").single("image"),
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
@@ -35,6 +37,7 @@ class SubCategoryRouter {
       "/:id",
       Authentication.admin,
       checkPermission(Permissions.SUBCATEGORY),
+      fileUpload("sub-category-image").single("image"),
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
