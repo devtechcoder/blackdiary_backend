@@ -1,4 +1,4 @@
-import mongoose, { model, AggregatePaginateModel } from "mongoose";
+import mongoose, { model } from "mongoose";
 const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 const { Schema } = mongoose;
 
@@ -56,4 +56,4 @@ const Share = new Schema(
 Share.index({ shared_by: 1, diary_id: 1, platform: 1 });
 Share.plugin(aggregatePaginate);
 
-export default model<any, AggregatePaginateModel<any>>("Share", Share);
+export default model<any>("Share", Share);

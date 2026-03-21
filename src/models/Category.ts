@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { model, AggregatePaginateModel } from "mongoose";
+import { model } from "mongoose";
 const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 const Schema = mongoose.Schema;
 
@@ -24,4 +24,4 @@ const Category = new Schema(
 
 mongoose.plugin(aggregatePaginate);
 Category.index({ name: "text" });
-export default model<any, AggregatePaginateModel<any>>("Category", Category);
+export default model<any>("Category", Category);

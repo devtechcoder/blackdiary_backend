@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { model, AggregatePaginateModel } from "mongoose";
+import { model } from "mongoose";
 const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 const Schema = mongoose.Schema;
 
@@ -27,4 +27,4 @@ const Follow = new Schema(
 Follow.index({ follower: 1, following: 1 }, { unique: true });
 
 mongoose.plugin(aggregatePaginate);
-export default model<any, AggregatePaginateModel<any>>("Follow", Follow);
+export default model<any>("Follow", Follow);

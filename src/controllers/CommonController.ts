@@ -213,15 +213,24 @@ export class Controller {
 
   static async getSeo(req, res, next) {
     const startTime = new Date().getTime();
-    const pageKey = req.params.pageKey;
+    const slug = req.params.slug;
 
-    try {
-      if (pageKey) {
-        const getData = await Seo.findOne({ page_key: pageKey });
-        return _RS.api(res, true, "seo data!", getData || {}, startTime);
+    const normalizedSlug = (() => {
+      const rawValue = (slug || "/").trim();
+      if (!rawValue || rawValue === "/") {
+        return "/";
       }
 
-      const getData = await Seo.find({}).sort({ created_at: -1 });
+      return rawValue.replace(/\/+/g, "/").replace(/^\/?/, "/").replace(/\/$/, "") || "/";
+    })();
+
+    try {
+      if (slug !== undefined) {
+        const getData = await Seo.findOne({ slug: normalizedSlug });
+        return _RS.api(res, !!getData, getData ? "seo data!" : "SEO not found!", getData || null, startTime);
+      }
+
+      const getData = await Seo.find({}).sort({ updatedAt: -1 });
       return _RS.api(res, true, "seo data!", getData, startTime);
     } catch (err) {
       next(err);

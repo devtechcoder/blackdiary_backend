@@ -28,7 +28,7 @@ class CommonRoutes {
     this.router.get("/get-cms/:slug?", Controller.getCms);
     this.router.get("/get-masters/:slug?", Controller.getMasters);
     this.router.get("/get-settings/:slug?", Controller.getSettings);
-    this.router.get("/get-seo/:pageKey?", Controller.getSeo);
+    this.router.get("/get-seo/:slug(*)?", Controller.getSeo);
   }
 }
 

@@ -2,11 +2,29 @@ import _RS from "../../helpers/ResponseHelper";
 import { getCurrentTime } from "../../helpers/function";
 import Seo from "../../models/Seo";
 
+const normalizeSlug = (value?: string) => {
+  const rawValue = (value || "/").trim();
+  if (!rawValue || rawValue === "/") {
+    return "/";
+  }
+
+  const sanitized = rawValue.replace(/\/+/g, "/").replace(/^\/?/, "/").replace(/\/$/, "");
+  return sanitized || "/";
+};
+
+const getSeoPayload = (body: any = {}) => ({
+  slug: normalizeSlug(body.slug),
+  primary: body.primary || {},
+  openGraph: body.openGraph || {},
+  twitter: body.twitter || {},
+  common: body.common || {},
+});
+
 export class Controller {
   static async list(req, res, next) {
     try {
       const startTime = getCurrentTime();
-      const sort: any = { created_at: -1 };
+      const sort: any = { updatedAt: -1 };
       const options = {
         page: req.query.page || 1,
         limit: req.query.pageSize || 20,
@@ -19,8 +37,7 @@ export class Controller {
       if (req.query.search && req.query.search.trim()) {
         const search = req.query.search.trim();
         filteredQuery.$or = [
-          { page_key: { $regex: search, $options: "i" } },
-          { section: { $regex: search, $options: "i" } },
+          { slug: { $regex: search, $options: "i" } },
           { "primary.title": { $regex: search, $options: "i" } },
           { "openGraph.title": { $regex: search, $options: "i" } },
           { "twitter.title": { $regex: search, $options: "i" } },
@@ -40,23 +57,16 @@ export class Controller {
   static async add(req, res, next) {
     try {
       const startTime = getCurrentTime();
-      const { section = "page", page_key, primary = {}, openGraph = {}, twitter = {}, common = {} } = req.body;
+      const payload = getSeoPayload(req.body);
 
-      const existing = await Seo.findOne({ page_key: page_key?.trim() });
+      const existing = await Seo.findOne({ slug: payload.slug });
       if (existing) {
-        return _RS.api(res, false, "SEO page key already exists", {}, startTime);
+        return _RS.api(res, false, "SEO slug already exists", {}, startTime);
       }
 
-      await new Seo({
-        section,
-        page_key: page_key?.trim(),
-        primary,
-        openGraph,
-        twitter,
-        common,
-      }).save();
+      const createdSeo = await new Seo(payload).save();
 
-      return _RS.api(res, true, "SEO has been added successfully!", {}, startTime);
+      return _RS.api(res, true, "SEO has been added successfully!", createdSeo, startTime);
     } catch (err) {
       next(err);
     }
@@ -66,29 +76,28 @@ export class Controller {
     try {
       const startTime = getCurrentTime();
       const id = req.params.id;
-      const { section = "page", page_key, primary = {}, openGraph = {}, twitter = {}, common = {} } = req.body;
+      const payload = getSeoPayload(req.body);
 
       const getData = await Seo.findById(id);
       if (!getData) {
         return _RS.api(res, false, "SEO not found!", {}, startTime);
       }
 
-      if (page_key && page_key.trim() !== getData.page_key) {
-        const existing = await Seo.findOne({ page_key: page_key.trim(), _id: { $ne: id } });
+      if (payload.slug !== getData.slug) {
+        const existing = await Seo.findOne({ slug: payload.slug, _id: { $ne: id } });
         if (existing) {
-          return _RS.api(res, false, "SEO page key already exists", {}, startTime);
+          return _RS.api(res, false, "SEO slug already exists", {}, startTime);
         }
       }
 
-      getData.section = section || getData.section;
-      getData.page_key = page_key?.trim() || getData.page_key;
-      getData.primary = primary || getData.primary;
-      getData.openGraph = openGraph || getData.openGraph;
-      getData.twitter = twitter || getData.twitter;
-      getData.common = common || getData.common;
+      getData.slug = payload.slug;
+      getData.primary = payload.primary;
+      getData.openGraph = payload.openGraph;
+      getData.twitter = payload.twitter;
+      getData.common = payload.common;
       await getData.save();
 
-      return _RS.api(res, true, "SEO has been updated successfully!", {}, startTime);
+      return _RS.api(res, true, "SEO has been updated successfully!", getData, startTime);
     } catch (err) {
       next(err);
     }

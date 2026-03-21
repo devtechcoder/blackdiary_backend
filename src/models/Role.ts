@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { model, AggregatePaginateModel } from "mongoose";
+import { model } from "mongoose";
 const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 const Schema = mongoose.Schema;
 
@@ -96,4 +96,4 @@ mongoose.plugin(aggregatePaginate);
 Role.index({ name: "text" });
 Role.index({ user_location: "2dsphere" });
 
-export default model<any, AggregatePaginateModel<any>>("role", Role);
+export default model<any>("role", Role);

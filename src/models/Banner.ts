@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { model, AggregatePaginateModel } from "mongoose";
+import { model } from "mongoose";
 import { CATEGORY_TYPE } from "../constants/constants";
 const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 const Schema = mongoose.Schema;
@@ -40,4 +40,4 @@ const Banner = new Schema(
 );
 mongoose.plugin(aggregatePaginate);
 
-export default model<any, AggregatePaginateModel<any>>("Banner", Banner);
+export default model<any>("Banner", Banner);

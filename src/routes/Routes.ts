@@ -1,5 +1,6 @@
 import { Router } from "express";
 import CommonRoutes from "./CommonRoutes";
+import SeoRouter from "./SeoRouter";
 import AuthRouter from "./admin/AuthRouter";
 import BannerRouter from "./admin/BannerRouter";
 import ContentRouter from "./admin/ContentRouter";
@@ -79,6 +80,7 @@ class Routes {
   }
 
   common() {
+    this.router.use("/seo", SeoRouter);
     this.router.use("/common", CommonRoutes);
     this.router.use("/contact-enquiry", ContactEnquiryRouter);
   }

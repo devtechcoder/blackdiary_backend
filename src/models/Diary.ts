@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { model, AggregatePaginateModel } from "mongoose";
+import { model } from "mongoose";
 import { CATEGORY_TYPE } from "../constants/constants";
 const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 const Schema = mongoose.Schema;
@@ -30,4 +30,4 @@ const Diary = new Schema(
 
 mongoose.plugin(aggregatePaginate);
 Diary.index({ category: "text" });
-export default model<any, AggregatePaginateModel<any>>("Diary", Diary);
+export default model<any>("Diary", Diary);

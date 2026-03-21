@@ -19,7 +19,7 @@ class SeoRouter {
       "/",
       Authentication.admin,
       checkPermission(Permissions.SETTING),
-      [body("page_key").notEmpty().withMessage("Valid page key must be provided")],
+      [body("slug").notEmpty().withMessage("Valid slug must be provided")],
       ValidateRequest,
       Controller.add,
     );
@@ -28,7 +28,7 @@ class SeoRouter {
       "/:id",
       Authentication.admin,
       checkPermission(Permissions.SETTING),
-      [param("id").notEmpty().isMongoId().withMessage("Valid id must be provided"), body("page_key").notEmpty().withMessage("Valid page key must be provided")],
+      [param("id").notEmpty().isMongoId().withMessage("Valid id must be provided"), body("slug").notEmpty().withMessage("Valid slug must be provided")],
       ValidateRequest,
       Controller.edit,
     );
