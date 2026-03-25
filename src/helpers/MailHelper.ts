@@ -2,14 +2,10 @@ import User from "../models/User";
 const nodemailer = require("nodemailer");
 
 export class MailHelper {
-
-  constructor() { }
+  constructor() {}
 
   static emailHtml(description: any, ar_description: any) {
     console.log(process.env.BASE_URL + `img/Logo.png`);
-
-   
-
 
     const html = `
     <html lang="en">
@@ -97,7 +93,7 @@ export class MailHelper {
                 </div>
             </div>
         </body>
-    </html>`
+    </html>`;
     return html;
   }
 
@@ -105,18 +101,17 @@ export class MailHelper {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.MAIL_USERNAME ?? 'harshit.inventcolab@gmail.com',
-        pass: process.env.MAIL_PASSWORD ?? 'xggpvgdhddkzyecb',
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD,
       },
     });
 
     let mailOptions = {
-      from: process.env.MAIL_USERNAME ?? 'harshit.inventcolab@gmail.com',
+      from: process.env.MAIL_USERNAME,
       to: receiver_mail,
       subject: subject,
       html: MailHelper.emailHtml(html, arHtml),
     };
-
 
     // Send the email
     transporter.sendMail(mailOptions, function (error, info) {
@@ -144,7 +139,6 @@ export class MailHelper {
   //     subject: subject,
   //     html: MailHelper.emailHtml(html, arHtml),
   //   };
-
 
   //   // Send the email
   //   transporter.sendMail(mailOptions, function (error, info) {

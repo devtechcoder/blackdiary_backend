@@ -15,6 +15,7 @@ import SettingAdminRouter from "./admin/SettingRouter";
 import SeoAdminRouter from "./admin/SeoRouter";
 import EnquiryAdminRouter from "./admin/EnquiryRouter";
 import ContactEnquiryRouter from "./ContactEnquiryRouter";
+import FaqAdminRouter from "./admin/FaqRouter";
 
 //App Routes
 import HomeRouter from "./app/HomeRouter";
@@ -33,6 +34,7 @@ import CommentRouter from "./app/commentRouter";
 import Leadership from "./app/LeadershipRouter";
 import CmsRouter from "./admin/CmsRouter";
 import MasterAdminRouter from "./admin/MasterRouter";
+import FaqAppRouter from "./app/FaqRouter";
 
 class Routes {
   public router: Router;
@@ -58,6 +60,7 @@ class Routes {
     this.router.use("/app/post", PostRouter);
     this.router.use("/app/comment", CommentRouter);
     this.router.use("/app/leadership", Leadership);
+    this.router.use("/app/faq", FaqAppRouter);
   }
 
   admin() {
@@ -77,6 +80,7 @@ class Routes {
     this.router.use("/admin/seo", SeoAdminRouter);
     this.router.use("/admin/enquiries", EnquiryAdminRouter);
     this.router.use("/admin/master", MasterAdminRouter);
+    this.router.use("/admin/faq", FaqAdminRouter);
   }
 
   common() {

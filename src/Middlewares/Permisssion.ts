@@ -11,6 +11,7 @@ export const Permissions = {
   SETTING: "setting-management",
   ENQUIRY: "enquiry-management",
   DIARY: "diary-management",
+  FAQ: "faq-management",
   Occasion: "occasion-management",
 
   Role: "role-manager",
