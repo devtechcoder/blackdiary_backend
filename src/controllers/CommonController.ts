@@ -11,6 +11,9 @@ import Master from "../models/Master";
 import Setting from "../models/Setting";
 import Seo from "../models/Seo";
 export class Controller {
+  static escapeRegex(value = "") {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
   /** API for category only for admin */
 
   /**
@@ -130,18 +133,24 @@ export class Controller {
         return _RS.api(res, true, "search List", {}, startTime);
       }
 
+      const normalizedQuery = String(q).trim().replace(/^@+/, "");
+      const safeQuery = Controller.escapeRegex(normalizedQuery);
+
       // Build filter
-      const filter = {
+      const filter: any = {
         is_delete: false,
         type: { $in: [UserTypes.CUSTOMER] },
-        user_name: q.trim(),
+        $or: [
+          { user_name: { $regex: new RegExp(`^${safeQuery}$`, "i") } },
+          { user_name: { $regex: new RegExp(`^@${safeQuery}$`, "i") } },
+        ],
       };
 
       // Fetch user first
       const user = await User.findOne(filter);
 
       if (!user) {
-        return _RS.api(res, true, "User not found", {}, startTime);
+        return _RS.api(res, false, "User not found", null, startTime);
       }
 
       // Run 2 queries in parallel (faster)

@@ -6,6 +6,8 @@ import Occasion from "../../models/Occasion";
 import SubCategory from "../../models/SubCategory";
 import Likes from "../../models/Likes";
 
+const authorSelect = "_id name user_name image";
+
 export class HomeController {
   static async list(req, res, next) {
     try {
@@ -30,9 +32,11 @@ export class HomeController {
       // --- Now Promise.all to fetch all in parallel
       const [trendingDiary, recentlyViewDiary, occasions, topPoets, topDiary, likedDiary, subCategories] = await Promise.all([
         Diary.find({ ...filteredQuery })
+          .populate("author", authorSelect)
           .sort({ created_at: -1 })
           .limit(20),
         Diary.find({ ...filteredQuery })
+          .populate("author", authorSelect)
           .sort({ created_at: -1 })
           .limit(20),
         Occasion.find({ ...filteredQuery })
@@ -41,6 +45,7 @@ export class HomeController {
         User.find({ is_delete: false, is_active: true }).sort({ created_at: -1 }).limit(20),
 
         Diary.find({ ...filteredQuery })
+          .populate("author", authorSelect)
           .sort({ rating: -1 })
           .limit(20),
         userId
@@ -48,6 +53,7 @@ export class HomeController {
               .distinct("diary_id")
               .then((likedIds) =>
                 Diary.find({ ...filteredQuery, _id: { $in: likedIds } })
+                  .populate("author", authorSelect)
                   .sort({ created_at: -1 })
                   .limit(20)
               )
@@ -107,6 +113,36 @@ export class HomeController {
       let query: any = [
         {
           $match: filteredQuery,
+        },
+        {
+          $lookup: {
+            from: "users",
+            let: { authorId: "$author" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$_id", "$$authorId"],
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  name: 1,
+                  user_name: 1,
+                  image: 1,
+                },
+              },
+            ],
+            as: "author",
+          },
+        },
+        {
+          $unwind: {
+            path: "$author",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $sort: sort,

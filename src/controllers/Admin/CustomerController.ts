@@ -4,6 +4,9 @@ import _RS from "../../helpers/ResponseHelper";
 import User, { UserTypes } from "../../models/User";
 import { ADDED_BY_TYPES } from "../../constants/constants";
 import { deleteLocalImageIfExists } from "../../helpers/function";
+import { isUserNameTaken, isValidUserName, normalizeUserName } from "../../helpers/userNameHelper";
+
+const escapeRegex = (value = "") => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export class CustomerController {
   static async list(req, res, next) {
@@ -23,10 +26,29 @@ export class CustomerController {
       let filteredQuery: any = { is_delete: false, type: UserTypes.CUSTOMER };
 
       if (req.query.search && req.query.search.trim()) {
+        const searchValue = req.query.search.trim();
         filteredQuery.$or = [
           {
             name: {
-              $regex: new RegExp(req.query.search),
+              $regex: new RegExp(escapeRegex(searchValue)),
+              $options: "i",
+            },
+          },
+          {
+            user_name: {
+              $regex: new RegExp(escapeRegex(searchValue)),
+              $options: "i",
+            },
+          },
+          {
+            email: {
+              $regex: new RegExp(escapeRegex(searchValue)),
+              $options: "i",
+            },
+          },
+          {
+            mobile_number: {
+              $regex: new RegExp(escapeRegex(searchValue)),
               $options: "i",
             },
           },
@@ -62,7 +84,12 @@ export class CustomerController {
   static async add(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { name, email, mobile_number, country_code, dob, gender } = req.body;
+      const { name, email, mobile_number, country_code, dob, gender, user_name } = req.body;
+      const normalizedUserName = normalizeUserName(user_name);
+
+      if (!isValidUserName(normalizedUserName)) {
+        return _RS.api(res, false, "Please enter a valid user name.", {}, startTime);
+      }
 
       const formattedEmail = email ? email?.toLowerCase() : email;
       let isAlready = await User.findOne({
@@ -86,6 +113,11 @@ export class CustomerController {
         return _RS.api(res, false, "User already exist with this mobile number!", {}, startTime);
       }
 
+      const isUserNameAlready = await isUserNameTaken(normalizedUserName);
+      if (isUserNameAlready) {
+        return _RS.api(res, false, "User already exist with this user name!", {}, startTime);
+      }
+
       let image = null;
       if (req.file) {
         image = req.file.path;
@@ -94,7 +126,8 @@ export class CustomerController {
       const create = await new User({
         image,
         name,
-        email,
+        user_name: normalizedUserName,
+        email: formattedEmail,
         mobile_number,
         country_code,
         dob,
@@ -112,8 +145,13 @@ export class CustomerController {
   static async edit(req, res, next) {
     try {
       const startTime = new Date().getTime();
-      const { name, email, mobile_number, country_code, dob, gender, isImageRemove } = req.body;
+      const { name, email, mobile_number, country_code, dob, gender, isImageRemove, user_name } = req.body;
       const id = req.params.id;
+      const normalizedUserName = normalizeUserName(user_name);
+
+      if (!isValidUserName(normalizedUserName)) {
+        return _RS.api(res, false, "Please enter a valid user name.", {}, startTime);
+      }
 
       const formattedEmail = email ? email?.toLowerCase()?.trim() : email;
       let isAlready = await User.findOne({
@@ -139,6 +177,11 @@ export class CustomerController {
         return _RS.api(res, false, "User already exist with this mobile number!", {}, startTime);
       }
 
+      const isUserNameAlready = await isUserNameTaken(normalizedUserName, id);
+      if (isUserNameAlready) {
+        return _RS.api(res, false, "User already exist with this user name!", {}, startTime);
+      }
+
       const getData = await User.findById(id);
 
       if (!getData) {
@@ -154,6 +197,7 @@ export class CustomerController {
       }
 
       getData.name = name ? name : getData.name;
+      getData.user_name = normalizedUserName ? normalizedUserName : getData.user_name;
       getData.email = email ? formattedEmail : getData.email;
       getData.mobile_number = mobile_number ? mobile_number : getData.mobile_number;
       getData.country_code = country_code ? country_code : getData.country_code;
@@ -200,6 +244,28 @@ export class CustomerController {
       await getData.save();
 
       return _RS.api(res, true, "User deleted successfully!", getData, startTime);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async checkUserName(req, res, next) {
+    try {
+      const startTime = new Date().getTime();
+      const userName = normalizeUserName(req.query?.user_name);
+      const excludeId = req.query?.id ? String(req.query.id) : null;
+
+      if (!isValidUserName(userName)) {
+        return _RS.api(res, false, "Please enter a valid user name.", { available: false }, startTime);
+      }
+
+      const isTaken = await isUserNameTaken(userName, excludeId);
+
+      if (isTaken) {
+        return _RS.api(res, false, "User name already taken", { available: false }, startTime);
+      }
+
+      return _RS.api(res, true, "User name is available", { available: true }, startTime);
     } catch (err) {
       next(err);
     }

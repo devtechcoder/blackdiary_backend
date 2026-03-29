@@ -29,15 +29,15 @@ export class AuthController {
 
       const isPasswordValid = await Auth.comparePassword(password, isUserExist.password);
 
-      // if (!isPasswordValid) {
-      //   return _RS.badRequest(
-      //     res,
-      //     "BADREQUEST",
-      //     "Invalid password",
-      //     {},
-      //     startTime
-      //   );
-      // }
+      if (!isPasswordValid) {
+        return _RS.badRequest(
+          res,
+          "BADREQUEST",
+          "Invalid password",
+          {},
+          startTime
+        );
+      }
 
       isUserExist.device_token = device_token ? device_token : isUserExist.device_token;
       isUserExist.device_type = device_type ? device_type : isUserExist.device_type;

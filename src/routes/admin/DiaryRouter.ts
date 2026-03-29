@@ -5,6 +5,7 @@ import { DiaryController } from "../../controllers/Admin/DiaryController";
 import { body, param, query } from "express-validator";
 import ValidateRequest from "../../Middlewares/ValidateRequest";
 import checkPermission, { Permissions } from "../../Middlewares/Permisssion";
+import fileUpload from "../../Middlewares/FileUpload";
 
 class DiaryRouter {
   public router: Router;
@@ -20,6 +21,7 @@ class DiaryRouter {
       "/",
       Authentication.admin,
       checkPermission(Permissions.DIARY),
+      fileUpload("diary-post").single("image"),
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("category").notEmpty().withMessage("Valid category must be provided"),
@@ -34,6 +36,7 @@ class DiaryRouter {
       "/:id",
       Authentication.admin,
       checkPermission(Permissions.DIARY),
+      fileUpload("diary-post").single("image"),
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("category").notEmpty().withMessage("Valid category must be provided"),

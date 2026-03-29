@@ -35,6 +35,8 @@ import Leadership from "./app/LeadershipRouter";
 import CmsRouter from "./admin/CmsRouter";
 import MasterAdminRouter from "./admin/MasterRouter";
 import FaqAppRouter from "./app/FaqRouter";
+import ChatRouter from "./app/ChatRouter";
+import KeywordEmotionRouter from "./admin/KeywordEmotionRouter";
 
 class Routes {
   public router: Router;
@@ -61,6 +63,7 @@ class Routes {
     this.router.use("/app/comment", CommentRouter);
     this.router.use("/app/leadership", Leadership);
     this.router.use("/app/faq", FaqAppRouter);
+    this.router.use("/app/chat", ChatRouter);
   }
 
   admin() {
@@ -87,6 +90,7 @@ class Routes {
     this.router.use("/seo", SeoRouter);
     this.router.use("/common", CommonRoutes);
     this.router.use("/contact-enquiry", ContactEnquiryRouter);
+    this.router.use("/keyword-emotion", KeywordEmotionRouter);
   }
 }
 export default new Routes().router;

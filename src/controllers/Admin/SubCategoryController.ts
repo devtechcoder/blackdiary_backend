@@ -148,10 +148,6 @@ export class SubCategoryController {
         bg_color,
       });
 
-      if (req.user.type == UserTypes.TEACHER) {
-        await changeLog(ChangeLogAction.ADD, `Added New Sub Category ${subCategory?.name}.`, req.user.id);
-      }
-
       return _RS.api(res, true, "Sub Category has been added successfully", subCategory, startTime);
     } catch (err) {
       next(err);
@@ -212,9 +208,6 @@ export class SubCategoryController {
       getSubCategory.is_active = is_active;
       await getSubCategory.save();
 
-      if (req.user.type == UserTypes.TEACHER) {
-        await changeLog(ChangeLogAction.UPDATE, `Updated Sub Category ${getSubCategory?.name}.`, req.user.id);
-      }
       return _RS.api(res, true, "Sub Category has been update successfully", getSubCategory, startTime);
     } catch (err) {
       next(err);
@@ -234,9 +227,6 @@ export class SubCategoryController {
       getSubCategory.is_active = !getSubCategory.is_active;
       await getSubCategory.save();
 
-      if (req.user.type == UserTypes.TEACHER) {
-        await changeLog(ChangeLogAction.STATUS, `Changed Status Sub Category ${getSubCategory?.name}.`, req.user.id);
-      }
       return _RS.api(res, true, "Sub Category Status changed successfully", getSubCategory, startTime);
     } catch (err) {
       next(err);
@@ -256,9 +246,6 @@ export class SubCategoryController {
       getSubCategory.is_delete = true;
       await getSubCategory.save();
 
-      if (req.user.type == UserTypes.TEACHER) {
-        await changeLog(ChangeLogAction.DELETE, `Deleted Sub Category ${getSubCategory?.name}.`, req.user.id);
-      }
       return _RS.api(res, true, "Sub Category deleted successfully", getSubCategory, startTime);
     } catch (err) {
       next(err);

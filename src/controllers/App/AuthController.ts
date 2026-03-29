@@ -4,6 +4,7 @@ import User, { UserTypes } from "../../models/User";
 import Auth from "../../Utils/Auth";
 import Otp, { OtpUseFor } from "../../models/Otp";
 import { formattedEmail, formattedUserName } from "../../helpers/function";
+import { createAvailableUserName, isUserNameTaken, isValidUserName } from "../../helpers/userNameHelper";
 import { ADDED_BY_TYPES } from "../../constants/constants";
 import Follow from "../../models/Follow";
 
@@ -58,10 +59,11 @@ export class AuthController {
 
       if (!isUserExist) {
         // User does not exist, create a new one.
+        const availableUserName = await createAvailableUserName(email.split("@")[0]);
         isUserExist = await new User({
           name,
           image,
-          user_name: formattedUserName(email.split("@")[0]),
+          user_name: availableUserName || formattedUserName(email.split("@")[0]),
           email: formattedEmail(email),
           type: UserTypes.CUSTOMER,
           added_by: ADDED_BY_TYPES.SELF,
@@ -276,11 +278,13 @@ export class AuthController {
       const startTime = new Date().getTime();
       const { user_name, signup_type, name, email, mobile_number, country_code, dob, gender, password } = req.body;
       const otpData = await Auth.generateOtp(); // 6-digit OTP
-      let isAlready = await User.findOne({
-        user_name: formattedUserName(user_name),
-        is_delete: false,
-        type: UserTypes.CUSTOMER,
-      });
+      const normalizedUserName = formattedUserName(user_name);
+
+      if (!isValidUserName(normalizedUserName)) {
+        return _RS.api(res, false, "Please enter a valid user name!", {}, startTime);
+      }
+
+      let isAlready = await isUserNameTaken(normalizedUserName);
 
       if (isAlready) {
         return _RS.api(res, false, "User already exist with this user name!", {}, startTime);
@@ -288,7 +292,7 @@ export class AuthController {
 
       const create = await new User({
         name,
-        user_name: formattedUserName(user_name),
+        user_name: normalizedUserName,
         email: formattedEmail(email),
         mobile_number,
         country_code,
@@ -376,17 +380,17 @@ export class AuthController {
 
       let isAlready;
       if (action === "username") {
-        isAlready = await User.findOne({
-          _id: { $ne: new mongoose.Types.ObjectId(req.user.id) },
-          user_name: formattedUserName(user_name),
-          is_delete: false,
-          type: UserTypes.CUSTOMER,
-        });
+        const normalizedUserName = formattedUserName(user_name);
+        if (!isValidUserName(normalizedUserName)) {
+          return _RS.api(res, false, "Please enter a valid user name!", {}, startTime);
+        }
+
+        isAlready = await isUserNameTaken(normalizedUserName, req.user.id);
 
         if (isAlready) {
           return _RS.api(res, false, "User already exist with this user name!", {}, startTime);
         }
-        getUser.user_name = user_name;
+        getUser.user_name = normalizedUserName;
       } else if (action === "name") {
         getUser.name = name;
       } else if (action === "profile") {

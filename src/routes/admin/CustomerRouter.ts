@@ -7,6 +7,7 @@ import ValidateRequest from "../../Middlewares/ValidateRequest";
 import checkPermission, { Permissions } from "../../Middlewares/Permisssion";
 
 import fileUpload from "../../Middlewares/FileUpload";
+import { isValidUserName } from "../../helpers/userNameHelper";
 
 class CustomerRouter {
   public router: Router;
@@ -27,6 +28,16 @@ class CustomerRouter {
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
+        body("user_name")
+          .notEmpty()
+          .withMessage("Valid user name must be provided")
+          .custom((value) => {
+            if (!isValidUserName(value)) {
+              throw new Error("User name must be 3-30 characters and can contain only lowercase letters, numbers, dot and underscore.");
+            }
+
+            return true;
+          }),
         body("email").notEmpty().withMessage("Valid email must be provided"),
         body("dob").notEmpty().withMessage("Valid dob must be provided"),
         body("gender").notEmpty().withMessage("Valid gender must be provided"),
@@ -43,6 +54,16 @@ class CustomerRouter {
       [
         // body("image").notEmpty().withMessage("Valid image must be provided"),
         body("name").notEmpty().withMessage("Valid name must be provided"),
+        body("user_name")
+          .notEmpty()
+          .withMessage("Valid user name must be provided")
+          .custom((value) => {
+            if (!isValidUserName(value)) {
+              throw new Error("User name must be 3-30 characters and can contain only lowercase letters, numbers, dot and underscore.");
+            }
+
+            return true;
+          }),
         body("email").notEmpty().withMessage("Valid email must be provided"),
         body("dob").notEmpty().withMessage("Valid dob must be provided"),
         body("gender").notEmpty().withMessage("Valid gender must be provided"),
@@ -69,6 +90,14 @@ class CustomerRouter {
       [param("id").notEmpty().isMongoId().withMessage("Valid  id must be provided")],
       ValidateRequest,
       CustomerController.statusChange,
+    );
+
+    this.router.get(
+      "/check-user-name",
+      Authentication.admin,
+      checkPermission(Permissions.CUSTOMER),
+      ValidateRequest,
+      CustomerController.checkUserName,
     );
 
     this.router.delete(

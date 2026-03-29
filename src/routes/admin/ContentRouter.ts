@@ -24,22 +24,10 @@ class ContentRouter {
       Authentication.admin,
       checkPermission(Permissions.CMS),
       [
-        body("content.*.name")
-          .notEmpty()
-          .isArray()
-          .withMessage("Valid name must be provided"),
-        body("content.*.ar_name")
-          .notEmpty()
-          .isArray()
-          .withMessage("Valid ar_name must be provided"),
-        body("content.*.description")
-          .notEmpty()
-          .isArray()
-          .withMessage("Valid description must be provided"),
-        body("content.*.ar_description")
-          .notEmpty()
-          .isArray()
-          .withMessage("Valid ar_description must be provided"),
+        body("content.*.name").notEmpty().isArray().withMessage("Valid name must be provided"),
+        body("content.*.ar_name").notEmpty().isArray().withMessage("Valid ar_name must be provided"),
+        body("content.*.description").notEmpty().isArray().withMessage("Valid description must be provided"),
+        body("content.*.ar_description").notEmpty().isArray().withMessage("Valid ar_description must be provided"),
       ],
       ValidateRequest,
       async (req, res, next) => {
@@ -56,21 +44,15 @@ class ContentRouter {
                 description,
                 ar_description,
               });
-            })
+            }),
           );
 
-          return _RS.apiNew(
-            res,
-            true,
-            "Content added successfully",
-            {},
-            startTime
-          );
+          return _RS.apiNew(res, true, "Content added successfully", {}, startTime);
         } catch (error) {
           console.error("Error:", error);
           next(error);
         }
-      }
+      },
     );
 
     this.router.put(
@@ -78,21 +60,11 @@ class ContentRouter {
       Authentication.admin,
       checkPermission(Permissions.CMS),
       [
-        body("content.*.name")
-          .notEmpty()
-          .withMessage("Valid name must be provided"),
-        body("content.*.ar_name")
-          .notEmpty()
-          .withMessage("Valid ar_name must be provided"),
-        body("content.*.description")
-          .notEmpty()
-          .withMessage("Valid description must be provided"),
-        body("content.*.ar_description")
-          .notEmpty()
-          .withMessage("Valid ar_description must be provided"),
-        body("content.*.id")
-          .notEmpty()
-          .withMessage("Valid name must be provided"),
+        body("content.*.name").notEmpty().withMessage("Valid name must be provided"),
+        body("content.*.ar_name").notEmpty().withMessage("Valid ar_name must be provided"),
+        body("content.*.description").notEmpty().withMessage("Valid description must be provided"),
+        body("content.*.ar_description").notEmpty().withMessage("Valid ar_description must be provided"),
+        body("content.*.id").notEmpty().withMessage("Valid name must be provided"),
       ],
       ValidateRequest,
       async (req, res, next) => {
@@ -109,41 +81,26 @@ class ContentRouter {
 
               choice.name = name ? name : choice.name;
               choice.ar_name = ar_name ? ar_name : choice.ar_name;
-              choice.description = description
-                ? description
-                : choice.description;
-              choice.ar_description = ar_description
-                ? ar_description
-                : choice.ar_description;
+              choice.description = description ? description : choice.description;
+              choice.ar_description = ar_description ? ar_description : choice.ar_description;
 
               await choice.save();
-            })
+            }),
           );
 
-          return _RS.apiNew(
-            res,
-            true,
-            "Content updated successfully",
-            {},
-            startTime
-          );
+          return _RS.apiNew(res, true, "Content updated successfully", {}, startTime);
         } catch (error) {
           console.error("Error:", error);
           next(error);
         }
-      }
+      },
     );
 
     this.router.put(
       "/:id/status",
       Authentication.admin,
       checkPermission(Permissions.CMS),
-      [
-        param("id")
-          .notEmpty()
-          .isMongoId()
-          .withMessage("Valid id must be provided"),
-      ],
+      [param("id").notEmpty().isMongoId().withMessage("Valid id must be provided")],
       ValidateRequest,
       Authentication.userLanguage,
       async (req, res, next) => {
@@ -162,38 +119,20 @@ class ContentRouter {
 
           await choice.save();
 
-          if (req.user.type == UserTypes.TEACHER) {
-            await changeLog(
-              ChangeLogAction.STATUS,
-              `Changed Status Content ${choice?.name}.`,
-              req.user.id
-            );
-          }
-          return _RS.apiNew(
-            res,
-            true,
-            "Content status changed successfully",
-            choice,
-            startTime
-          );
+          return _RS.apiNew(res, true, "Content status changed successfully", choice, startTime);
         } catch (error) {
           console.log("Error :", error);
 
           next(error);
         }
-      }
+      },
     );
 
     this.router.delete(
       "/:id",
       Authentication.admin,
       checkPermission(Permissions.CMS),
-      [
-        param("id")
-          .notEmpty()
-          .isMongoId()
-          .withMessage("Valid id must be provided"),
-      ],
+      [param("id").notEmpty().isMongoId().withMessage("Valid id must be provided")],
       ValidateRequest,
       Authentication.userLanguage,
       async (req, res, next) => {
@@ -212,26 +151,13 @@ class ContentRouter {
 
           await user.save();
 
-          if (req.user.type == UserTypes.TEACHER) {
-            await changeLog(
-              ChangeLogAction.DELETE,
-              `Deleted Content ${user?.name}.`,
-              req.user.id
-            );
-          }
-          return _RS.apiNew(
-            res,
-            true,
-            "Content deleted successfully",
-            user,
-            startTime
-          );
+          return _RS.apiNew(res, true, "Content deleted successfully", user, startTime);
         } catch (error) {
           console.log("Error :", error);
 
           next(error);
         }
-      }
+      },
     );
   }
 
@@ -260,13 +186,13 @@ class ContentRouter {
             {
               data,
             },
-            startTime
+            startTime,
           );
         } catch (error) {
           console.error("Error:", error);
           next(error);
         }
-      }
+      },
     );
   }
 }

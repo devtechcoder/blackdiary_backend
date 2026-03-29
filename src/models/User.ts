@@ -8,7 +8,6 @@ export const UserTypes = {
   ADMIN: "Admin",
   CUSTOMER: "Customer",
   SUBADMIN: "Sub-Admin",
-  TEACHER: "Teacher",
   NULL: null,
 };
 
@@ -57,7 +56,7 @@ const User = new Schema(
       createdAt: "created_at",
       updatedAt: "updated_at",
     },
-  }
+  },
 );
 
 User.pre("save", function (next) {

@@ -4,6 +4,7 @@ import User, { UserTypes } from "../models/User";
 import ChangeLog from "../models/ChangeLog";
 import * as fs from "fs";
 import * as path from "path";
+import { normalizeUserName } from "./userNameHelper";
 
 export const activityLog = async (action, message, user_id) => {
   const user = await User.findById(user_id);
@@ -40,7 +41,7 @@ export const getCurrentTime = () => {
 };
 
 export const formattedUserName = (value) => {
-  return value ? value?.trim() : value;
+  return normalizeUserName(value);
 };
 
 export const deleteLocalImageIfExists = (imagePath: string | null | undefined) => {

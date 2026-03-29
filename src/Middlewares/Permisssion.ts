@@ -12,6 +12,7 @@ export const Permissions = {
   ENQUIRY: "enquiry-management",
   DIARY: "diary-management",
   FAQ: "faq-management",
+  KEYWORD_EMOTION: "keyword-emotion-management",
   Occasion: "occasion-management",
 
   Role: "role-manager",

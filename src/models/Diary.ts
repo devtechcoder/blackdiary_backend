@@ -11,6 +11,7 @@ const Diary = new Schema(
     sub_category_id: [{ type: Schema.Types.ObjectId, ref: "SubCategory", default: null }],
     occasion_ids: [{ type: Schema.Types.ObjectId, ref: "Occasion", default: null }],
     author: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    keywords: [{ type: Schema.Types.ObjectId, ref: "KeywordEmotion", default: [] }],
     total_likes: { type: Number, default: 0 },
     total_comment: { type: Number, default: 0 },
     total_share: { type: Number, default: 0 },

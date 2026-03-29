@@ -92,6 +92,13 @@ export class Server {
 
   handleErrors() {
     this.app.use((error: any, req, res, next: NextFunction) => {
+      if (error?.type === "entity.parse.failed" || error instanceof SyntaxError) {
+        return res.status(400).json({
+          message: "Invalid JSON body.",
+          status: 400,
+        });
+      }
+
       const errorStatus = req.errorStatus;
       res.status(errorStatus || 500).json({
         message: error.message || "Something went wrong!!",

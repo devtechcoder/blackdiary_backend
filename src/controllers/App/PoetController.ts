@@ -1,6 +1,6 @@
 import * as mongoose from "mongoose";
 import _RS from "../../helpers/ResponseHelper";
-import User from "../../models/User";
+import User, { UserTypes } from "../../models/User";
 
 export class PoetController {
   static async list(req, res, next) {
@@ -17,7 +17,15 @@ export class PoetController {
         },
       };
 
-      let filteredQuery: any = { is_delete: false };
+      let filteredQuery: any = {
+        is_delete: false,
+        is_active: true,
+        type: UserTypes.CUSTOMER,
+      };
+
+      if (req.user?.id && mongoose.Types.ObjectId.isValid(req.user.id)) {
+        filteredQuery._id = { $ne: new mongoose.Types.ObjectId(req.user.id) };
+      }
 
       if (req.query.search && req.query.search.trim()) {
         filteredQuery.$or = [
