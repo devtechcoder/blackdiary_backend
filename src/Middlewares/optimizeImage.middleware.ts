@@ -7,25 +7,64 @@ const IMAGE_BASE_URL = "http://localhost:7900";
  * Middleware to normalize image URLs in API responses
  * Keeps original file extension and prepends public base URL.
  */
-export const optimizeImageUrls = async (req, res, next) => {
-  // Store original send
+// export const optimizeImageUrls = async (req, res, next) => {
+//   // Store original send
+//   const originalSend = res.send;
+
+//   res.send = async function (body) {
+//     try {
+//       if (typeof body === "string") {
+//         body = JSON.parse(body);
+//       }
+
+//       // Check if data exists in response
+//       if (body?.data) {
+//         body.data = await processImagesRecursively(body.data);
+//       }
+
+//       res.setHeader("Content-Type", "application/json");
+//       return originalSend.call(this, JSON.stringify(body));
+//     } catch (err) {
+//       console.error("Image optimization middleware error:", err);
+//       return originalSend.call(this, body);
+//     }
+//   };
+
+//   next();
+// };
+
+export const optimizeImageUrls = (req, res, next) => {
   const originalSend = res.send;
 
-  res.send = async function (body) {
+  res.send = function (body) {
     try {
+      let parsedBody = body;
+
       if (typeof body === "string") {
-        body = JSON.parse(body);
+        try {
+          parsedBody = JSON.parse(body);
+        } catch {
+          return originalSend.call(this, body);
+        }
       }
 
-      // Check if data exists in response
-      if (body?.data) {
-        body.data = await processImagesRecursively(body.data);
+      if (parsedBody?.data) {
+        processImagesRecursively(parsedBody.data)
+          .then((updatedData) => {
+            parsedBody.data = updatedData;
+            return originalSend.call(this, JSON.stringify(parsedBody));
+          })
+          .catch((err) => {
+            console.error("Image optimization error:", err);
+            return originalSend.call(this, body);
+          });
+
+        return;
       }
 
-      res.setHeader("Content-Type", "application/json");
-      return originalSend.call(this, JSON.stringify(body));
+      return originalSend.call(this, body);
     } catch (err) {
-      console.error("Image optimization middleware error:", err);
+      console.error("Middleware crash:", err);
       return originalSend.call(this, body);
     }
   };

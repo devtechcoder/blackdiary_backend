@@ -14,6 +14,7 @@ export const Permissions = {
   FAQ: "faq-management",
   KEYWORD_EMOTION: "keyword-emotion-management",
   Occasion: "occasion-management",
+  EMAIL_LOGS: "email-log-management",
 
   Role: "role-manager",
   TEACHER: "teacher-manager",

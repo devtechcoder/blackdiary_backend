@@ -96,9 +96,33 @@ class PostController {
         },
         { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
         {
+          $lookup: {
+            from: "follows",
+            let: { authorId: "$author._id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [{ $eq: ["$following", "$$authorId"] }, { $eq: ["$follower", mongoose.Types.ObjectId(userId)] }],
+                  },
+                },
+              },
+            ],
+            as: "userFollow",
+          },
+        },
+        {
+          $addFields: { is_follow: { $gt: [{ $size: "$userFollow" }, 0] } },
+        },
+        {
+          $addFields: {
+            is_own_post: { $eq: ["$author._id", mongoose.Types.ObjectId(userId)] },
+          },
+        },
+        {
           $sort: sort,
         },
-        { $project: { userLike: 0 } }, // Clean up by removing the userLike array
+        { $project: { userLike: 0, userFollow: 0 } }, // Clean up by removing temporary arrays
       ];
 
       let myAggregate = Post.aggregate(query);

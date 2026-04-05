@@ -117,6 +117,11 @@ class ShayariController {
           $addFields: { is_follow: { $gt: [{ $size: "$userFollow" }, 0] } },
         },
         {
+          $addFields: {
+            is_own_post: { $eq: ["$author._id", mongoose.Types.ObjectId(userId)] },
+          },
+        },
+        {
           $sort: sort,
         },
         { $project: { userLike: 0, userFollow: 0 } }, // Clean up by removing the temporary arrays

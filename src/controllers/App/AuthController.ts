@@ -7,6 +7,7 @@ import { formattedEmail, formattedUserName } from "../../helpers/function";
 import { createAvailableUserName, isUserNameTaken, isValidUserName } from "../../helpers/userNameHelper";
 import { ADDED_BY_TYPES } from "../../constants/constants";
 import Follow from "../../models/Follow";
+import { sendEmail } from "../../services/email.service";
 
 export class AuthController {
   static async login(req, res, next) {
@@ -167,7 +168,7 @@ export class AuthController {
             account: userList,
             multiple: matchedUsers.length > 1,
           },
-          startTime
+          startTime,
         );
       }
     } catch (err) {
@@ -213,8 +214,21 @@ export class AuthController {
       isUserExist.otp_data = otpCode;
       await isUserExist.save();
 
-      return _RS.api(res, true, `OTP sent successfully ${otpCode?.otp}`, {}, startTime);
+      if (type === "Email" && isUserExist.email) {
+        await sendEmail({
+          to: formattedEmail(isUserExist.email),
+          slug: "send-one-time-otp",
+          data: {
+            USER_NAME: isUserExist.name || isUserExist.user_name || formattedUserName(user_name) || "User",
+            OTP: String(otpCode?.otp ?? ""),
+            APP_NAME: process.env.APP_NAME || "Black Diary",
+          },
+        });
+      }
+
+      return _RS.api(res, true, `OTP sent successfully.`, {}, startTime);
     } catch (err) {
+      console.error("sendOtp error:", err);
       next(err);
     }
   }
@@ -305,8 +319,21 @@ export class AuthController {
         otp_data: otpData,
       }).save();
 
-      return _RS.api(res, true, `Congratulations! Signup successfully! ${otpData?.otp}`, { data: create }, startTime);
+      if (create?.email) {
+        await sendEmail({
+          to: formattedEmail(create.email),
+          slug: "send-one-time-otp",
+          data: {
+            USER_NAME: create.name || create.user_name || normalizedUserName || "User",
+            OTP: String(otpData?.otp ?? ""),
+            APP_NAME: process.env.APP_NAME || "Black Diary",
+          },
+        });
+      }
+
+      return _RS.api(res, true, `Congratulations! Signup successfully!`, { data: create }, startTime);
     } catch (err) {
+      console.error("signUp error:", err);
       next(err);
     }
   }

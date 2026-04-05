@@ -16,6 +16,8 @@ import SeoAdminRouter from "./admin/SeoRouter";
 import EnquiryAdminRouter from "./admin/EnquiryRouter";
 import ContactEnquiryRouter from "./ContactEnquiryRouter";
 import FaqAdminRouter from "./admin/FaqRouter";
+import EmailTemplateRouter from "./admin/EmailTemplateRouter";
+import EmailLogRouter from "./admin/EmailLogRouter";
 
 //App Routes
 import HomeRouter from "./app/HomeRouter";
@@ -84,6 +86,8 @@ class Routes {
     this.router.use("/admin/enquiries", EnquiryAdminRouter);
     this.router.use("/admin/master", MasterAdminRouter);
     this.router.use("/admin/faq", FaqAdminRouter);
+    this.router.use("/admin/email-template", EmailTemplateRouter);
+    this.router.use("/admin/email-logs", EmailLogRouter);
   }
 
   common() {
