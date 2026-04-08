@@ -47,18 +47,10 @@ export class Server {
   }
 
   enableCors() {
-    const corsOptions = {
-      origin: function (origin, callback) {
-        if (!origin || ["https://blackdiary.vercel.app", "https://adminblackdiary.vercel.app", "http://localhost:3000", "http://localhost:3001"].includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
-      credentials: true,
-    };
-    this.app.options("*", cors(corsOptions)); // enable pre-flight
-    this.app.use(cors(corsOptions));
+    // Allow requests from any origin so browser preflight does not block public APIs.
+    // We are not relying on cookie-based auth here, so a permissive CORS setup is safe.
+    this.app.use(cors());
+    this.app.options("*", cors());
   }
 
   configBodyParser() {
