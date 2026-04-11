@@ -2,6 +2,7 @@ import User from "../../models/User";
 import _RS from "../../helpers/ResponseHelper";
 import Auth from "../../Utils/Auth";
 import { deleteLocalImageIfExists } from "../../helpers/function";
+import { ensureAlertPermission } from "../../helpers/alertPermission";
 // import MailHelper from "../../helpers/MailHelper";
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -37,6 +38,7 @@ export class AuthController {
       isUserExist.device_type = device_type ? device_type : isUserExist.device_type;
 
       await isUserExist.save();
+      await ensureAlertPermission(isUserExist._id).catch((error) => console.error("ensureAlertPermission(adminLogin) failed:", error));
       const payload = {
         id: isUserExist._id,
         email: isUserExist.email,
@@ -66,6 +68,7 @@ export class AuthController {
           type: "Admin",
           mobile_number: "534656456546",
         });
+        await ensureAlertPermission(user._id).catch((error) => console.error("ensureAlertPermission(adminSignUp) failed:", error));
         return _RS.created(res, "CREATED", "SignUp Successfully");
       }
       return _RS.conflict(res, "CONFLICT", "User already exist with this email", user, startTime);

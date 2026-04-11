@@ -9,6 +9,8 @@ import { ADDED_BY_TYPES } from "../../constants/constants";
 import Follow from "../../models/Follow";
 import { sendEmail } from "../../services/email.service";
 import LoginActivityController from "./LoginActivityController";
+import { ensureAlertPermission, sanitizeAlertPermissionPayload } from "../../helpers/alertPermission";
+const moment = require("moment");
 
 export class AuthController {
   static async login(req, res, next) {
@@ -33,6 +35,7 @@ export class AuthController {
       isUserExist.device_type = device_type ? device_type : isUserExist.device_type;
 
       await isUserExist.save();
+      await ensureAlertPermission(isUserExist._id).catch((error) => console.error("ensureAlertPermission(login) failed:", error));
       const payload = {
         id: isUserExist._id,
         email: isUserExist.email,
@@ -92,6 +95,7 @@ export class AuthController {
       isUserExist.device_type = device_type ? device_type : isUserExist.device_type;
 
       await isUserExist.save();
+      await ensureAlertPermission(isUserExist._id).catch((error) => console.error("ensureAlertPermission(googleLogin) failed:", error));
       const payload = {
         id: isUserExist._id,
         email: isUserExist.email,
@@ -216,6 +220,7 @@ export class AuthController {
 
       isUserExist.otp_data = otpCode;
       await isUserExist.save();
+      await ensureAlertPermission(isUserExist._id).catch((error) => console.error("ensureAlertPermission(sendOtp) failed:", error));
 
       if (type === "Email" && isUserExist.email) {
         await sendEmail({
@@ -277,6 +282,7 @@ export class AuthController {
       isUserExist.is_otp_verify = true;
       isUserExist.otp_data.otpExpiresTime = null;
       await isUserExist.save();
+      await ensureAlertPermission(isUserExist._id).catch((error) => console.error("ensureAlertPermission(verifyOtp) failed:", error));
       const payload = {
         id: isUserExist._id,
         email: isUserExist.email,
@@ -334,6 +340,8 @@ export class AuthController {
           },
         });
       }
+
+      await ensureAlertPermission(create._id).catch((error) => console.error("ensureAlertPermission(signUp) failed:", error));
 
       return _RS.api(res, true, `Congratulations! Signup successfully!`, { data: create }, startTime);
     } catch (err) {
@@ -393,7 +401,147 @@ export class AuthController {
       getUser.website_link = website_link;
       getUser.is_suggestion_verify = is_suggestion_verify;
       await getUser.save();
+      await ensureAlertPermission(getUser._id).catch((error) => console.error("ensureAlertPermission(editProfile) failed:", error));
       return _RS.api(res, true, "Profile updated successfully", getUser, startTime);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async updatePersonalDetails(req, res, next) {
+    const startTime = new Date().getTime();
+    const { country_code, mobile_number, dob } = req.body;
+
+    try {
+      const getUser = await User.findById(req.user.id);
+
+      if (!getUser) {
+        return _RS.notFound(res, "NOTFOUND", "User not exist, go to signup page", getUser, startTime);
+      }
+
+      const hasContactUpdate = country_code !== undefined || mobile_number !== undefined;
+
+      if (hasContactUpdate) {
+        const normalizedCountryCode = String(country_code ?? "").replace(/[^\d]/g, "");
+        const normalizedMobileNumber = String(mobile_number ?? "").replace(/[^\d]/g, "");
+
+        if (!normalizedCountryCode || !normalizedMobileNumber) {
+          return _RS.badRequest(res, "BADREQUEST", "Please enter a valid country code and phone number", {}, startTime);
+        }
+
+        if (!/^\d{1,4}$/.test(normalizedCountryCode)) {
+          return _RS.badRequest(res, "BADREQUEST", "Country code must contain only 1 to 4 digits", {}, startTime);
+        }
+
+        if (!/^\d{8,12}$/.test(normalizedMobileNumber)) {
+          return _RS.badRequest(res, "BADREQUEST", "Phone number must be between 8 and 12 digits", {}, startTime);
+        }
+
+        const isPhoneTaken = await User.findOne({
+          _id: { $ne: getUser._id },
+          type: UserTypes.CUSTOMER,
+          is_delete: false,
+          mobile_number: normalizedMobileNumber,
+          country_code: normalizedCountryCode,
+        });
+
+        if (isPhoneTaken) {
+          return _RS.badRequest(res, "BADREQUEST", "This phone number is already linked with another account", {}, startTime);
+        }
+
+        getUser.country_code = normalizedCountryCode;
+        getUser.mobile_number = normalizedMobileNumber;
+      }
+
+      if (dob !== undefined) {
+        if (dob === null || dob === "") {
+          getUser.dob = null;
+        } else {
+          const normalizedDob = String(dob).trim();
+          const parsedDob = moment(normalizedDob, "YYYY-MM-DD", true);
+
+          if (!parsedDob.isValid()) {
+            return _RS.badRequest(res, "BADREQUEST", "Please enter a valid birthday", {}, startTime);
+          }
+
+          getUser.dob = parsedDob.format("YYYY-MM-DD");
+        }
+      }
+
+      await getUser.save();
+      await ensureAlertPermission(getUser._id).catch((error) => console.error("ensureAlertPermission(updatePersonalDetails) failed:", error));
+
+      return _RS.api(res, true, "Personal details updated successfully", getUser, startTime);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getNotificationPermission(req, res, next) {
+    const startTime = new Date().getTime();
+    try {
+      const alertPermission = await ensureAlertPermission(req.user.id);
+
+      return _RS.ok(res, "SUCCESS", "Notification preferences fetched successfully", alertPermission, startTime);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async updateNotificationPermission(req, res, next) {
+    const startTime = new Date().getTime();
+    try {
+      const alertPermission = await ensureAlertPermission(req.user.id);
+
+      if (!alertPermission) {
+        return _RS.notFound(res, "NOTFOUND", "User not exist, go to signup page", alertPermission, startTime);
+      }
+
+      const updates = sanitizeAlertPermissionPayload(req.body);
+      Object.assign(alertPermission, updates);
+      await alertPermission.save();
+
+      return _RS.ok(res, "SUCCESS", "Notification preferences updated successfully", alertPermission, startTime);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async changePassword(req, res, next) {
+    const startTime = new Date().getTime();
+    const { old_password, new_password, confirm_password } = req.body;
+
+    try {
+      const getUser: any = await User.findById(req.user.id);
+
+      if (!getUser) {
+        return _RS.notFound(res, "NOTFOUND", "User not exist, go to signup page", getUser, startTime);
+      }
+
+      if (!getUser.password) {
+        return _RS.badRequest(res, "BADREQUEST", "Password is not set for this account", {}, startTime);
+      }
+
+      if (new_password !== confirm_password) {
+        return _RS.badRequest(res, "BADREQUEST", "Confirm password does not match new password", {}, startTime);
+      }
+
+      const isPasswordCurrentCorrect = await Auth.comparePassword(old_password, getUser.password);
+
+      if (!isPasswordCurrentCorrect) {
+        return _RS.badRequest(res, "BADREQUEST", "Old password does not match", {}, startTime);
+      }
+
+      const isSamePassword = await Auth.comparePassword(new_password, getUser.password);
+
+      if (isSamePassword) {
+        return _RS.badRequest(res, "BADREQUEST", "New password cannot be the same as the old password", {}, startTime);
+      }
+
+      getUser.password = await Auth.encryptPassword(new_password);
+      await getUser.save();
+
+      return _RS.ok(res, "SUCCESS", "Password changed successfully", {}, startTime);
     } catch (err) {
       next(err);
     }

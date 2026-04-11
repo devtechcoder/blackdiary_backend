@@ -5,6 +5,7 @@ import User, { UserTypes } from "../../models/User";
 import { ADDED_BY_TYPES } from "../../constants/constants";
 import { deleteLocalImageIfExists } from "../../helpers/function";
 import { isUserNameTaken, isValidUserName, normalizeUserName } from "../../helpers/userNameHelper";
+import { ensureAlertPermission } from "../../helpers/alertPermission";
 
 const escapeRegex = (value = "") => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -135,6 +136,7 @@ export class CustomerController {
         type: UserTypes.CUSTOMER,
         added_by: ADDED_BY_TYPES.ADMIN,
       }).save();
+      await ensureAlertPermission(create._id).catch((error) => console.error("ensureAlertPermission(adminCustomerAdd) failed:", error));
 
       return _RS.api(res, true, "User has been added successfully!", create, startTime);
     } catch (err) {

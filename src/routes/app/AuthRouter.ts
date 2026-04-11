@@ -42,11 +42,29 @@ class AuthRouter {
 
   public put() {
     this.router.put("/edit-profile", Authentication.user, AuthController.editProfile);
+    this.router.put("/personal-details", Authentication.user, AuthController.updatePersonalDetails);
     this.router.put("/edit-by-action", [body("action").notEmpty().withMessage("Valid user name must be provided")], ValidateRequest, Authentication.user, AuthController.editByAction);
+    this.router.put("/notification-permission", Authentication.user, AuthController.updateNotificationPermission);
+    this.router.put(
+      "/change-password",
+      [
+        body("old_password").notEmpty().withMessage("Please enter the old password!"),
+        body("new_password")
+          .notEmpty()
+          .withMessage("Please enter the new password!")
+          .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/)
+          .withMessage("New password must be at least 8 characters and include uppercase, lowercase, number, and special character."),
+        body("confirm_password").notEmpty().withMessage("Please enter the confirm password!"),
+      ],
+      ValidateRequest,
+      Authentication.user,
+      AuthController.changePassword,
+    );
   }
   public get() {
     this.router.get("/get-one/:id", [param("id").notEmpty().withMessage("Valid id must be provided")], ValidateRequest, AuthController.getOne);
     this.router.get("/profile", Authentication.user, AuthController.getProfile);
+    this.router.get("/notification-permission", Authentication.user, AuthController.getNotificationPermission);
     this.router.get("/login-activity", Authentication.user, LoginActivityController.getMine);
   }
 }
