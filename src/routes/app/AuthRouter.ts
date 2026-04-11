@@ -1,6 +1,8 @@
 import { Router } from "express";
 import Authentication from "../../Middlewares/Authnetication";
 import { AuthController } from "../../controllers/App/AuthController";
+import captureLoginActivity from "../../Middlewares/LoginActivity";
+import LoginActivityController from "../../controllers/App/LoginActivityController";
 
 import { body, param, query } from "express-validator";
 import ValidateRequest from "../../Middlewares/ValidateRequest";
@@ -17,10 +19,11 @@ class AuthRouter {
 
   public post() {
     this.router.post("/login-account", AuthController.getLoginAccount);
-    this.router.post("/login", AuthController.login);
-    this.router.post("/google-login", AuthController.googleLogin);
+    this.router.post("/login", captureLoginActivity, AuthController.login);
+    this.router.post("/google-login", captureLoginActivity, AuthController.googleLogin);
     this.router.post("/send-otp", AuthController.sendOtp);
-    this.router.post("/verify-otp", AuthController.verifyOtp);
+    this.router.post("/verify-otp", captureLoginActivity, AuthController.verifyOtp);
+    this.router.post("/logout", Authentication.user, LoginActivityController.logout);
     this.router.post(
       "/sign-up",
       [
@@ -44,6 +47,7 @@ class AuthRouter {
   public get() {
     this.router.get("/get-one/:id", [param("id").notEmpty().withMessage("Valid id must be provided")], ValidateRequest, AuthController.getOne);
     this.router.get("/profile", Authentication.user, AuthController.getProfile);
+    this.router.get("/login-activity", Authentication.user, LoginActivityController.getMine);
   }
 }
 

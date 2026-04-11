@@ -8,6 +8,7 @@ import { createAvailableUserName, isUserNameTaken, isValidUserName } from "../..
 import { ADDED_BY_TYPES } from "../../constants/constants";
 import Follow from "../../models/Follow";
 import { sendEmail } from "../../services/email.service";
+import LoginActivityController from "./LoginActivityController";
 
 export class AuthController {
   static async login(req, res, next) {
@@ -39,6 +40,7 @@ export class AuthController {
       };
 
       const token = await Auth.getToken(payload, "1d", next);
+      await LoginActivityController.recordLogin(req, isUserExist._id);
       return _RS.ok(res, "SUCCESS", "Welcome! Login Successfully", { user: isUserExist, token }, startTime);
     } catch (err) {
       next(err);
@@ -97,6 +99,7 @@ export class AuthController {
       };
 
       const token = await Auth.getToken(payload, "1d", next);
+      await LoginActivityController.recordLogin(req, isUserExist._id);
       return _RS.ok(res, "SUCCESS", msg, { user: isUserExist, token }, startTime);
     } catch (err) {
       next(err);
@@ -281,6 +284,7 @@ export class AuthController {
       };
 
       const token = await Auth.getToken(payload, "1d", next);
+      await LoginActivityController.recordLogin(req, isUserExist._id);
       return _RS.api(res, true, "OTP verified successfully", { user: isUserExist, token }, startTime);
     } catch (error) {
       next(error);

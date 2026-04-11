@@ -3,7 +3,15 @@ import { Request, Response } from 'express';
 export interface ReqInterface extends Request {
     startTime: number;
     errorStatus: number;
-    userData: any
+    userData: any;
+    loginActivityMeta?: {
+        ipAddress?: string;
+        device?: string;
+        browser?: string;
+        os?: string;
+        location?: string;
+        userAgent?: string;
+    };
 }
 
 
@@ -21,4 +29,3 @@ export interface ResInterface extends Response {
     api: string;
     method: string;
 }
-

@@ -7,6 +7,7 @@ import SubCategory from "../../models/SubCategory";
 import KeywordEmotion from "../../models/KeywordEmotion";
 import Diary from "../../models/Diary";
 import Post from "../../models/Post";
+import LoginActivity from "../../models/LoginActivity";
 
 const DEFAULT_RANGE = 30;
 
@@ -244,6 +245,7 @@ export class DashboardController {
         recentDiaryPosts,
         recentSherPosts,
         recentUsers,
+        recentLoginActivities,
       ] = await Promise.all([
         User.countDocuments(userMatch),
         User.countDocuments({ ...userMatch, is_active: true }),
@@ -266,6 +268,11 @@ export class DashboardController {
         Diary.find(contentMatch).sort({ created_at: -1 }).limit(5).populate("author", "_id name user_name image").lean(),
         Post.find(contentMatch).sort({ created_at: -1 }).limit(5).populate("author", "_id name user_name image").lean(),
         User.find(userMatch).sort({ created_at: -1 }).limit(5).lean(),
+        LoginActivity.find({})
+          .sort({ loginAt: -1, created_at: -1 })
+          .limit(5)
+          .populate("userId", "_id name user_name email image")
+          .lean(),
       ]);
 
       const postGrowthSeries = mergeDailyCounts(dateBuckets, diaryGrowth, postGrowth);
@@ -366,6 +373,14 @@ export class DashboardController {
         displayName: item?.name || item?.user_name || "User",
       }));
 
+      const recentLoginActivitiesFormatted = (recentLoginActivities || []).map((item: any) => ({
+        ...item,
+        displayName: item?.userId?.name || item?.userId?.user_name || "User",
+        user_name: item?.userId?.user_name || "",
+        email: item?.userId?.email || "",
+        statusLabel: item?.logoutAt ? "Logged Out" : "Active Now",
+      }));
+
       const data = {
         range,
         stats: {
@@ -396,6 +411,7 @@ export class DashboardController {
         recentActivity: {
           posts: combinedRecentPosts,
           users: recentUsersFormatted,
+          loginActivities: recentLoginActivitiesFormatted,
         },
         // legacy compatibility fields
         totalCustomer: totalUsers,
