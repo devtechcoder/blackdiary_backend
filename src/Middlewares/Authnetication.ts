@@ -46,7 +46,7 @@ class Authentication {
       next();
     } catch (err) {
       if (err.message == "jwt expired") {
-        res.status(403).json({
+        return res.status(403).json({
           status: false,
           statusCode: 403,
           statusText: "JWT_EXPIRED",
@@ -77,11 +77,15 @@ class Authentication {
       const currentUser = await User.findById(decoded.id);
 
       if (!currentUser) {
-        return _RS.api(res, false, "User doesn't exists with us", {}, startTime);
+        req.user = {};
+        req.user.id = null;
+        return next();
       }
 
       if (!currentUser.is_active) {
-        return _RS.api(res, false, "Account Deactivated Please contact to admin", {}, startTime);
+        req.user = {};
+        req.user.id = null;
+        return next();
       }
 
       req.user = currentUser;
@@ -89,17 +93,13 @@ class Authentication {
       next();
     } catch (err) {
       if (err.message == "jwt expired") {
-        res.status(403).json({
-          status: 403,
-          statusText: "JWT_EXPIRED",
-          message: "JWT_EXPIRED",
-        });
+        req.user = {};
+        req.user.id = null;
+        return next();
       }
       return next(err);
     }
   }
-
-  
 
   static async admin(req, res, next) {
     const startTime = new Date().getTime();
@@ -132,7 +132,7 @@ class Authentication {
       next();
     } catch (err) {
       if (err.message == "jwt expired") {
-        res.status(403).json({
+        return res.status(403).json({
           status: 403,
           statusText: "JWT_EXPIRED",
           message: "JWT_EXPIRED",

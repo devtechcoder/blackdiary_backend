@@ -8,7 +8,6 @@ import Routes from "./routes/Routes";
 import { NextFunction } from "express";
 import path = require("path");
 import { ReqInterface, ResInterface } from "./interfaces/RequestInterface";
-import optimizeImageUrls from "./Middlewares/optimizeImage.middleware";
 // const app = express();
 // const cookieParser = require("cookie-parser");
 // let’s you use the cookieParser in your application
@@ -54,7 +53,6 @@ export class Server {
   }
 
   configBodyParser() {
-    this.app.use(optimizeImageUrls);
     this.app.use(express.urlencoded({ extended: true, limit: "10mb" }));
     this.app.use(express.json({ limit: "10mb" }));
     this.app.set("view engine", "ejs");
@@ -84,6 +82,10 @@ export class Server {
 
   handleErrors() {
     this.app.use((error: any, req, res, next: NextFunction) => {
+      if (res.headersSent) {
+        return next(error);
+      }
+
       if (error?.type === "entity.parse.failed" || error instanceof SyntaxError) {
         return res.status(400).json({
           message: "Invalid JSON body.",
